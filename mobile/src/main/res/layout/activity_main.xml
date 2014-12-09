@@ -25,6 +25,7 @@
             android:textSize="42sp" />
 
         <LinearLayout
+            android:id="@+id/linearLayoutCamera"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -32,7 +33,7 @@
             android:weightSum="1"
 
             android:clickable="true"
-            android:id="@+id/linearLayoutCamera">
+            android:onClick="clickCamera">
 
             <ImageView
                 android:layout_width="96dp"
@@ -51,6 +52,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/linearLayoutGallery"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -58,7 +60,7 @@
             android:weightSum="1"
 
             android:clickable="true"
-            android:id="@+id/linearLayoutGallery">
+            android:onClick="clickGallery">
 
             <ImageView
                 android:layout_width="96dp"

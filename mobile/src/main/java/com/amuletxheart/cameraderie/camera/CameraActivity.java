@@ -40,7 +40,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class MainActivity extends Activity implements SurfaceHolder.Callback {
+public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
     private static final String TAG = "WearCamera";
     private static final boolean D = true;
@@ -264,7 +264,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         mCamera.setParameters(params);
         Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
             public void onPictureTaken(byte[] data, Camera camera) {
-                MediaPlayer player = MediaPlayer.create(MainActivity.this, R.raw.camera_click);
+                MediaPlayer player = MediaPlayer.create(CameraActivity.this, R.raw.camera_click);
                 player.start();
                 FileOutputStream outStream = null;
                 try {

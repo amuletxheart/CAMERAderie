@@ -1,5 +1,6 @@
 package com.amuletxheart.cameraderie;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -9,6 +10,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.amuletxheart.cameraderie.camera.CameraActivity;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -22,8 +25,6 @@ public class MainActivity extends ActionBarActivity {
         Typeface myTypeface = Typeface.createFromAsset(getAssets(), "fonts/asenine.ttf");
         TextView myTextView = (TextView)findViewById(R.id. textViewTitle);
         myTextView.setTypeface(myTypeface);
-
-        initClickEvents();
     }
 
     @Override
@@ -48,21 +49,14 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void initClickEvents(){
-        LinearLayout linearLayoutCamera = (LinearLayout)findViewById(R.id.linearLayoutCamera);
-        linearLayoutCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "Clicked on camera button.");
-            }
-        });
+    public void clickCamera(View view){
+        Log.i(TAG, "Clicked on camera button.");
 
-        LinearLayout linearLayoutGallery = (LinearLayout)findViewById(R.id.linearLayoutGallery);
-        linearLayoutGallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "Clicked on gallery button.");
-            }
-        });
+        Intent intent = new Intent(this, CameraActivity.class);
+        startActivity(intent);
+    }
+
+    public void clickGallery(View view){
+        Log.i(TAG, "Clicked on gallery button.");
     }
 }
