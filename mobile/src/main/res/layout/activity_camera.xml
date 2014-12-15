@@ -29,4 +29,21 @@
         android:layout_alignParentEnd="false"
         android:visibility="visible" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Tap anywhere to take a photo"
+        android:id="@+id/textViewTip"
+        android:shadowColor="#ff000000"
+        android:singleLine="true"
+
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5"
+        android:textColor="#ffffffff"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:phoneNumber="false" />
 </RelativeLayout>

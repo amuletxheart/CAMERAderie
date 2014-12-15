@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="CAMERAderie"
+            android:text="Selfie@NYP-SIT"
             android:id="@+id/textViewTitle"
             android:layout_gravity="center_horizontal"
             android:textSize="42sp" />
