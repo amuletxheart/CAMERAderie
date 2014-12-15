@@ -1,19 +1,31 @@
 package com.amuletxheart.cameraderie;
 
-import android.support.v7.app.ActionBarActivity;
+import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.amuletxheart.cameraderie.camera.CameraActivity;
 
 
 public class MainActivity extends ActionBarActivity {
+    private static final String TAG = MainActivity.class.toString();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    }
 
+        Typeface myTypeface = Typeface.createFromAsset(getAssets(), "fonts/asenine.ttf");
+        TextView myTextView = (TextView)findViewById(R.id. textViewTitle);
+        myTextView.setTypeface(myTypeface);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -35,5 +47,16 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void clickCamera(View view){
+        Log.i(TAG, "Clicked on camera button.");
+
+        Intent intent = new Intent(this, CameraActivity.class);
+        startActivity(intent);
+    }
+
+    public void clickGallery(View view){
+        Log.i(TAG, "Clicked on gallery button.");
     }
 }
