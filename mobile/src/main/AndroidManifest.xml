@@ -52,6 +52,28 @@
             android:name=".EditPhotoActivity"
             android:label="@string/title_activity_edit_photo" >
         </activity>
+
+        <activity
+            android:name=".gallery.activity.HomeActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".gallery.activity.SimpleImageActivity"
+            android:label="@string/ac_name_image_list" />
+        <activity
+            android:name=".gallery.activity.ComplexImageActivity"
+            android:label="@string/ac_name_complex" />
+
+        <!-- Widget -->
+        <receiver android:name=".gallery.widget.UILWidgetProvider" >
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider" />
+
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

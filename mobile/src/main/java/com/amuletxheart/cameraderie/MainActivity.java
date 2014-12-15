@@ -8,10 +8,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.amuletxheart.cameraderie.camera.CameraActivity;
+import com.amuletxheart.cameraderie.gallery.activity.HomeActivity;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -58,5 +58,8 @@ public class MainActivity extends ActionBarActivity {
 
     public void clickGallery(View view){
         Log.i(TAG, "Clicked on gallery button.");
+
+        Intent intent = new Intent(this, HomeActivity.class);
+        startActivity(intent);
     }
 }
