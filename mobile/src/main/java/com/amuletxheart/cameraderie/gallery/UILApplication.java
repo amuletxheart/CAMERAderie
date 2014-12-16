@@ -49,12 +49,13 @@ public class UILApplication extends Application {
 		//  ImageLoaderConfiguration.createDefault(this);
 		// method.
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-				.threadPriority(Thread.NORM_PRIORITY - 2)
+                .threadPoolSize(10)
+				.threadPriority(Thread.MAX_PRIORITY)
 				.denyCacheImageMultipleSizesInMemory()
 				.diskCacheFileNameGenerator(new Md5FileNameGenerator())
-				.diskCacheSize(50 * 1024 * 1024) // 50 Mb
+				.diskCacheSize(512 * 1024 * 1024) // 512 Mb
+                .memoryCacheSizePercentage(30)
 				.tasksProcessingOrder(QueueProcessingType.LIFO)
-				.writeDebugLogs() // Remove for release app
 				.build();
 		// Initialize ImageLoader with configuration.
 		ImageLoader.getInstance().init(config);

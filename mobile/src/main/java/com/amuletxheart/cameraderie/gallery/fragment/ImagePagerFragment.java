@@ -42,7 +42,7 @@ public class ImagePagerFragment extends BaseFragment {
 
 	public static final int INDEX = 2;
 
-	String[] imageUrls = Constants.IMAGES;
+	String[] imageUrls;
 
 	DisplayImageOptions options;
 
@@ -60,6 +60,8 @@ public class ImagePagerFragment extends BaseFragment {
 				.considerExifParams(true)
 				.displayer(new FadeInBitmapDisplayer(300))
 				.build();
+
+        imageUrls = getArguments().getStringArray(Constants.Extra.IMAGE_URIS);
 	}
 
 	@Override

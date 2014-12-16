@@ -26,24 +26,58 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+
+import com.amuletxheart.cameraderie.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.amuletxheart.cameraderie.gallery.Constants;
-import com.amuletxheart.cameraderie.R;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
 public class ImageGridFragment extends AbsListViewBaseFragment {
+    private static final String TAG = ImageGridFragment.class.toString();
 
 	public static final int INDEX = 1;
 
-	String[] imageUrls = Constants.IMAGES;
+    //Test images
+	//String[] imageUrls = Constants.IMAGES;
+
+    String[] imageUrls = loadImagesFromDCIM();
 
 	DisplayImageOptions options;
+
+    private String[] loadImagesFromDCIM(){
+        File imageFolder = new File("/sdcard/DCIM/Camera");
+        File[] imageFiles = imageFolder.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+                if(filename.startsWith("img_wear_")){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+        });
+
+        List<String> imageURIList = new ArrayList<String>();
+        String[] imageURIArray;
+
+        for(File image : imageFiles){
+            imageURIList.add("file://" + image.getAbsolutePath());
+        }
+        imageURIArray = imageURIList.toArray(new String[imageURIList.size()]);
+
+        return imageURIArray;
+    }
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -68,7 +102,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				startImagePagerActivity(position);
+				startImagePagerActivity(imageUrls, position);
 			}
 		});
 		return rootView;

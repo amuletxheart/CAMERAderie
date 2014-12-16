@@ -73,7 +73,7 @@ public class ImageListFragment extends AbsListViewBaseFragment {
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				startImagePagerActivity(position);
+				startImagePagerActivity(imageUrls, position);
 			}
 		});
 		return rootView;
