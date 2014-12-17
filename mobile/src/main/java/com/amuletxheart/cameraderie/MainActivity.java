@@ -21,10 +21,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Typeface myTypeface = Typeface.createFromAsset(getAssets(), "fonts/asenine.ttf");
-        TextView myTextView = (TextView)findViewById(R.id. textViewTitle);
-        myTextView.setTypeface(myTypeface);
     }
 
     @Override
