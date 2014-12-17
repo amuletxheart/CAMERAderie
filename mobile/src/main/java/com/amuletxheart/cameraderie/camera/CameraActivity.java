@@ -20,6 +20,9 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.amuletxheart.cameraderie.R;
+import com.amuletxheart.cameraderie.gallery.Constants;
+import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
+import com.amuletxheart.cameraderie.gallery.fragment.ImagePagerFragment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -277,6 +280,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     BitmapFactory.Options opts = new BitmapFactory.Options();
                     opts.inSampleSize = 4;
                     Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length, opts);
+                    /* //Animation
                     mImageView.setImageBitmap(bmp);
                     mImageView.setX(0);
                     mImageView.setRotation(0);
@@ -285,7 +289,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                         public void run() {
                             mImageView.setVisibility(View.GONE);
                         }
-                    });
+                    });*/
                     int smallWidth, smallHeight;
                     int dimension = 280;
                     if(bmp.getWidth() > bmp.getHeight()) {
@@ -300,6 +304,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     bmpSmall.compress(Bitmap.CompressFormat.WEBP, 50, baos);
                     sendToWearable("result", baos.toByteArray(), null);
                     mCamera.startPreview();
+
+                    startImagePagerActivity(filename);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -308,6 +314,16 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             }
         };
         mCamera.takePicture(null, null, jpegCallback);
+    }
+
+    private void startImagePagerActivity(String filename){
+        String[] imageUris = {"file://" + filename};
+
+        Intent intent = new Intent(this, SimpleImageActivity.class);
+        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+        intent.putExtra(Constants.Extra.IMAGE_POSITION, 0);
+        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
+        startActivity(intent);
     }
 
     public void surfaceView_onClick(View view) {

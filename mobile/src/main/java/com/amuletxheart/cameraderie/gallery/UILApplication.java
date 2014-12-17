@@ -51,6 +51,7 @@ public class UILApplication extends Application {
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
                 .threadPoolSize(6)
                 .memoryCacheSizePercentage(30)
+                .memoryCacheExtraOptions(6000,6000)
 				.build();
 		// Initialize ImageLoader with configuration.
 		ImageLoader.getInstance().init(config);

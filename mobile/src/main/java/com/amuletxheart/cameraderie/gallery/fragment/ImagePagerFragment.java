@@ -26,14 +26,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.amuletxheart.cameraderie.R;
+import com.amuletxheart.cameraderie.gallery.Constants;
+import com.amuletxheart.cameraderie.gallery.photoview.HackyViewPager;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.amuletxheart.cameraderie.gallery.Constants;
-import com.amuletxheart.cameraderie.R;
+
+import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
@@ -56,7 +61,7 @@ public class ImagePagerFragment extends BaseFragment {
 				.resetViewBeforeLoading(true)
 				.cacheOnDisk(true)
 				.imageScaleType(ImageScaleType.EXACTLY)
-				.bitmapConfig(Bitmap.Config.RGB_565)
+				.bitmapConfig(Bitmap.Config.ARGB_8888)
 				.considerExifParams(true)
 				.displayer(new FadeInBitmapDisplayer(300))
 				.build();
@@ -67,7 +72,7 @@ public class ImagePagerFragment extends BaseFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fr_image_pager, container, false);
-		ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
+		ViewPager pager = (HackyViewPager) rootView.findViewById(R.id.pager);
 		pager.setAdapter(new ImageAdapter());
 		pager.setCurrentItem(getArguments().getInt(Constants.Extra.IMAGE_POSITION, 0));
 		return rootView;
@@ -95,10 +100,16 @@ public class ImagePagerFragment extends BaseFragment {
 		public Object instantiateItem(ViewGroup view, int position) {
 			View imageLayout = inflater.inflate(R.layout.item_pager_image, view, false);
 			assert imageLayout != null;
-			ImageView imageView = (ImageView) imageLayout.findViewById(R.id.image);
+			PhotoView photoView = (PhotoView) imageLayout.findViewById(R.id.image);
+            PhotoViewAttacher photoViewAttacher = new PhotoViewAttacher(photoView);
+
+            photoViewAttacher.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            photoViewAttacher.setMediumScale(2.0f);
+            photoViewAttacher.setMaximumScale(4.0f);
+
 			final ProgressBar spinner = (ProgressBar) imageLayout.findViewById(R.id.loading);
 
-			ImageLoader.getInstance().displayImage(imageUrls[position], imageView, options, new SimpleImageLoadingListener() {
+			ImageLoader.getInstance().displayImage(imageUrls[position], photoView, options, new SimpleImageLoadingListener() {
 				@Override
 				public void onLoadingStarted(String imageUri, View view) {
 					spinner.setVisibility(View.VISIBLE);

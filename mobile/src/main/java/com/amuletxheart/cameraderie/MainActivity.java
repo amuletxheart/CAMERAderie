@@ -1,17 +1,18 @@
 package com.amuletxheart.cameraderie;
 
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.amuletxheart.cameraderie.camera.CameraActivity;
-import com.amuletxheart.cameraderie.gallery.activity.HomeActivity;
+import com.amuletxheart.cameraderie.gallery.Constants;
+import com.amuletxheart.cameraderie.gallery.activity.GalleryHomeActivity;
+import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
+import com.amuletxheart.cameraderie.gallery.fragment.ImageGridFragment;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -55,7 +56,8 @@ public class MainActivity extends ActionBarActivity {
     public void clickGallery(View view){
         Log.i(TAG, "Clicked on gallery button.");
 
-        Intent intent = new Intent(this, HomeActivity.class);
+        Intent intent = new Intent(this, SimpleImageActivity.class);
+        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGridFragment.INDEX);
         startActivity(intent);
     }
 }

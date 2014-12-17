@@ -40,6 +40,7 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -77,6 +78,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
         for(File image : imageFiles){
             imageURIList.add("file://" + image.getAbsolutePath());
         }
+        Collections.reverse(imageURIList);
         imageURIArray = imageURIList.toArray(new String[imageURIList.size()]);
 
         return imageURIArray;
