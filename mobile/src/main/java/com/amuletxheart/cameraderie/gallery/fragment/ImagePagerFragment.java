@@ -101,11 +101,8 @@ public class ImagePagerFragment extends BaseFragment {
 			View imageLayout = inflater.inflate(R.layout.item_pager_image, view, false);
 			assert imageLayout != null;
 			PhotoView photoView = (PhotoView) imageLayout.findViewById(R.id.image);
-            PhotoViewAttacher photoViewAttacher = new PhotoViewAttacher(photoView);
-
-            photoViewAttacher.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            photoViewAttacher.setMediumScale(2.0f);
-            photoViewAttacher.setMaximumScale(4.0f);
+            photoView.setMediumScale(2.0f);
+            photoView.setMaximumScale(4.0f);
 
 			final ProgressBar spinner = (ProgressBar) imageLayout.findViewById(R.id.loading);
 
