@@ -18,12 +18,14 @@ package com.amuletxheart.cameraderie.gallery.fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -37,19 +39,57 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import android.net.Uri;
+
+import java.io.File;
+
 import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
 public class ImagePagerFragment extends BaseFragment {
+    private static final String TAG = ImagePagerFragment.class.getName();
 
 	public static final int INDEX = 2;
 
+    private ViewPager imagePager;
 	String[] imageUrls;
 
 	DisplayImageOptions options;
+
+    public void addButtonListeners() {
+        final ImageButton imageButtonTrash = (ImageButton) getView().findViewById(R.id.imageButtonTrash);
+        imageButtonTrash.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.i(TAG, "Clicked on trash button.");
+                int imageIndex = imagePager.getCurrentItem();
+                Log.i(TAG, "Deleting image index " + imageIndex);
+                String imageURIString = imageUrls[imageIndex];
+                Log.i(TAG, "Deleting image URI " + imageURIString);
+
+                Uri imageURI = Uri.parse(imageURIString);
+                /*getActivity().getContentResolver().delete(imageURI, null, null);*/
+                Log.i(TAG, Boolean.toString(new File(imageURIString).delete()));
+            }
+        });
+
+        final ImageButton imageButtonEdit = (ImageButton) getView().findViewById(R.id.imageButtonEdit);
+        imageButtonEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Clicked on edit button.");
+            }
+        });
+
+        final ImageButton imageButtonShare = (ImageButton) getView().findViewById(R.id.imageButtonShare);
+        imageButtonShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Click on share button.");
+            }
+        });
+    }
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,11 +115,19 @@ public class ImagePagerFragment extends BaseFragment {
 		ViewPager pager = (HackyViewPager) rootView.findViewById(R.id.pager);
 		pager.setAdapter(new ImageAdapter());
 		pager.setCurrentItem(getArguments().getInt(Constants.Extra.IMAGE_POSITION, 0));
+
+        imagePager = pager;
 		return rootView;
 	}
 
-	private class ImageAdapter extends PagerAdapter {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        addButtonListeners();
+    }
+
+    private class ImageAdapter extends PagerAdapter {
 		private LayoutInflater inflater;
 
 		ImageAdapter() {
