@@ -9,6 +9,7 @@ import android.hardware.Camera;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,6 +35,7 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -271,12 +273,18 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 player.start();
                 FileOutputStream outStream = null;
                 try {
-                    String filename = String.format("/sdcard/DCIM/Camera/img_wear_%d.jpg", System.currentTimeMillis());
-                    outStream = new FileOutputStream(filename);
+                    File sdDir = Environment.getExternalStorageDirectory();
+                    File dcim = new File(sdDir + "/DCIM");
+                    File imageDir = new File(dcim + "/Camera");
+
+                    String filename = String.format("/img_wear_%d.jpg", System.currentTimeMillis());
+                    File imageFile = new File(imageDir + filename);
+
+                    outStream = new FileOutputStream(imageFile);
                     outStream.write(data);
                     outStream.close();
                     if(D) Log.d(TAG, "wrote bytes: " + data.length);
-                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + filename)));
+                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + imageFile)));
                     BitmapFactory.Options opts = new BitmapFactory.Options();
                     opts.inSampleSize = 4;
                     Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length, opts);

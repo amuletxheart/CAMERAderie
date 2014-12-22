@@ -18,6 +18,7 @@ package com.amuletxheart.cameraderie.gallery.fragment;
 import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,8 +60,10 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 	DisplayImageOptions options;
 
     private String[] loadImagesFromDCIM(){
-        File imageFolder = new File("/sdcard/DCIM/Camera");
-        File[] imageFiles = imageFolder.listFiles(new FilenameFilter() {
+        File sdDir = Environment.getExternalStorageDirectory();
+        File dcim = new File(sdDir + "/DCIM");
+        File imageDir = new File(dcim + "/Camera");
+        File[] imageFiles = imageDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
                 if(filename.startsWith("img_wear_")){
