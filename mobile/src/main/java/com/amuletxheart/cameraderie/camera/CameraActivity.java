@@ -273,9 +273,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 player.start();
                 FileOutputStream outStream = null;
                 try {
-                    File sdDir = Environment.getExternalStorageDirectory();
-                    File dcim = new File(sdDir + "/DCIM");
-                    File imageDir = new File(dcim + "/Camera");
+                    File imageDir = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_PICTURES), "CAMERAderie");
+
+                    if (! imageDir.exists()){
+                        if (! imageDir.mkdirs()){
+                            Log.e("CAMERAderie", "failed to create directory");
+                        }
+                    }
 
                     String filename = String.format("/img_wear_%d.jpg", System.currentTimeMillis());
                     File imageFile = new File(imageDir + filename);
@@ -284,7 +289,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     outStream.write(data);
                     outStream.close();
                     if(D) Log.d(TAG, "wrote bytes: " + data.length);
-                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + imageFile)));
+                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
                     BitmapFactory.Options opts = new BitmapFactory.Options();
                     opts.inSampleSize = 4;
                     Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length, opts);
@@ -313,7 +318,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     sendToWearable("result", baos.toByteArray(), null);
                     mCamera.startPreview();
 
-                    startImagePagerActivity(filename);
+                    startImagePagerActivity(imageFile.getPath());
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

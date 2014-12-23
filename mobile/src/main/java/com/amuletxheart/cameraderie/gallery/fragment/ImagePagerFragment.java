@@ -15,11 +15,15 @@
  *******************************************************************************/
 package com.amuletxheart.cameraderie.gallery.fragment;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -80,21 +84,45 @@ public class ImagePagerFragment extends BaseFragment {
                 String imageURIString = imageUriList.get(imageIndex);
                 Log.i(TAG, "Deleting image URI " + imageURIString);
 
-                File imageFile = new File(imageURIString.replace("file://", ""));
+                Uri imageUri = Uri.parse(imageURIString);
+                File imageFile = new File(imageUri.getPath());
 
                 MemoryCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getMemoryCache());
                 DiskCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getDiskCache());
-                getActivity().getContentResolver().delete(Uri.parse(imageURIString.replace("file://", "")), null, null);
-                //boolean success = imageFile.delete();
+
+                //Delete from MediaStore, adapted from http://stackoverflow.com/a/20780472/1966873
+                // Set up the projection (we only need the ID)
+                String[] projection = { MediaStore.Images.Media._ID };
+
+                // Match on the file path
+                String selection = MediaStore.Images.Media.DATA + " = ?";
+                String[] selectionArgs = new String[] { imageFile.getAbsolutePath() };
+
+                // Query for the ID of the media matching the file path
+                Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                ContentResolver contentResolver = getActivity().getContentResolver();
+                Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+                if (c.moveToFirst()) {
+                    // We found the ID. Deleting the item via the content provider will also remove the file
+                    long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                    Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                    int success = contentResolver.delete(deleteUri, null, null);
+
+                    Log.i(TAG, "Image deleted success " + success);
+                } else {
+                    // File not found in media store DB
+                    Log.i(TAG, imageFile.getAbsolutePath() + " not found in MediaStore");
+                }
+                c.close();
+
                 imageUriList.remove(imageIndex);
-                //Log.i(TAG, "Image deleted success " + success);
 
                 String[] imageUris = imageUriList.toArray(new String[imageUriList.size()]);
 
                 getActivity().finish();
                 Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
                 intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
-                intent.putExtra(Constants.Extra.IMAGE_POSITION, imageIndex + 1);
+                intent.putExtra(Constants.Extra.IMAGE_POSITION, imageIndex);
                 intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
                 startActivity(intent);
             }
@@ -152,6 +180,8 @@ public class ImagePagerFragment extends BaseFragment {
 
         addButtonListeners();
     }
+
+    
 
     private class ImageAdapter extends PagerAdapter {
 		private LayoutInflater inflater;

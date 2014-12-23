@@ -55,14 +55,14 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
     //Test images
 	//String[] imageUrls = Constants.IMAGES;
 
-    String[] imageUrls = loadImagesFromDCIM();
+    private String[] imageUrls = loadImagesFromDCIM();
 
 	DisplayImageOptions options;
 
     private String[] loadImagesFromDCIM(){
-        File sdDir = Environment.getExternalStorageDirectory();
-        File dcim = new File(sdDir + "/DCIM");
-        File imageDir = new File(dcim + "/Camera");
+        File imageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "CAMERAderie");
+
         File[] imageFiles = imageDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
@@ -81,6 +81,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
         for(File image : imageFiles){
             imageURIList.add("file://" + image.getAbsolutePath());
         }
+        Collections.sort(imageURIList);
         Collections.reverse(imageURIList);
         imageURIArray = imageURIList.toArray(new String[imageURIList.size()]);
 
