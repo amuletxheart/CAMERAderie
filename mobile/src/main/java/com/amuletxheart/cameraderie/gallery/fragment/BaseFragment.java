@@ -51,4 +51,9 @@ public abstract class BaseFragment extends Fragment {
 				return false;
 		}
 	}
+
+    //http://stackoverflow.com/a/24630075/1966873
+    public void onBackPressed(){
+        //do nothing
+    }
 }

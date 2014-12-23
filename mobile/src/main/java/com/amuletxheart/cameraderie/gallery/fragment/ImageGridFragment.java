@@ -112,13 +112,19 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                getActivity().finish();
 				startImagePagerActivity(imageUrls, position);
 			}
 		});
 		return rootView;
 	}
 
-	public class ImageAdapter extends BaseAdapter {
+    @Override
+    public void onBackPressed() {
+        Log.v(TAG, "Back button pressed.");
+    }
+
+    public class ImageAdapter extends BaseAdapter {
 
 		private LayoutInflater inflater;
 

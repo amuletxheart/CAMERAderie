@@ -15,8 +15,10 @@
  *******************************************************************************/
 package com.amuletxheart.cameraderie.gallery.fragment;
 
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -75,56 +77,80 @@ public class ImagePagerFragment extends BaseFragment {
         imageButtonTrash.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.i(TAG, "Clicked on trash button.");
-                int imageIndex = imagePager.getCurrentItem();
-                Log.i(TAG, "Deleting image index " + imageIndex);
 
-                //Convert array to List for easier manipulation
-                List<String> imageUriList = new ArrayList<String>(Arrays.asList(imageUrls));
+                // 1. Instantiate an AlertDialog.Builder with its constructor
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-                String imageURIString = imageUriList.get(imageIndex);
-                Log.i(TAG, "Deleting image URI " + imageURIString);
+                // 2. Chain together various setter methods to set the dialog characteristics
+                builder.setMessage(R.string.delete_dialog_message)
+                        .setTitle(R.string.delete_dialog_title);
 
-                Uri imageUri = Uri.parse(imageURIString);
-                File imageFile = new File(imageUri.getPath());
+                builder.setPositiveButton(R.string.delete_dialog_positive, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int dialogId) {
+                        // User clicked OK button
 
-                MemoryCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getMemoryCache());
-                DiskCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getDiskCache());
+                        int imageIndex = imagePager.getCurrentItem();
+                        Log.i(TAG, "Deleting image index " + imageIndex);
 
-                //Delete from MediaStore, adapted from http://stackoverflow.com/a/20780472/1966873
-                // Set up the projection (we only need the ID)
-                String[] projection = { MediaStore.Images.Media._ID };
+                        //Convert array to List for easier manipulation
+                        List<String> imageUriList = new ArrayList<String>(Arrays.asList(imageUrls));
 
-                // Match on the file path
-                String selection = MediaStore.Images.Media.DATA + " = ?";
-                String[] selectionArgs = new String[] { imageFile.getAbsolutePath() };
+                        String imageURIString = imageUriList.get(imageIndex);
+                        Log.i(TAG, "Deleting image URI " + imageURIString);
 
-                // Query for the ID of the media matching the file path
-                Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                ContentResolver contentResolver = getActivity().getContentResolver();
-                Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
-                if (c.moveToFirst()) {
-                    // We found the ID. Deleting the item via the content provider will also remove the file
-                    long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-                    Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                    int success = contentResolver.delete(deleteUri, null, null);
+                        Uri imageUri = Uri.parse(imageURIString);
+                        File imageFile = new File(imageUri.getPath());
 
-                    Log.i(TAG, "Image deleted success " + success);
-                } else {
-                    // File not found in media store DB
-                    Log.i(TAG, imageFile.getAbsolutePath() + " not found in MediaStore");
-                }
-                c.close();
+                        MemoryCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getMemoryCache());
+                        DiskCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getDiskCache());
 
-                imageUriList.remove(imageIndex);
+                        //Delete from MediaStore, adapted from http://stackoverflow.com/a/20780472/1966873
+                        // Set up the projection (we only need the ID)
+                        String[] projection = { MediaStore.Images.Media._ID };
 
-                String[] imageUris = imageUriList.toArray(new String[imageUriList.size()]);
+                        // Match on the file path
+                        String selection = MediaStore.Images.Media.DATA + " = ?";
+                        String[] selectionArgs = new String[] { imageFile.getAbsolutePath() };
 
-                getActivity().finish();
-                Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
-                intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
-                intent.putExtra(Constants.Extra.IMAGE_POSITION, imageIndex);
-                intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
-                startActivity(intent);
+                        // Query for the ID of the media matching the file path
+                        Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                        ContentResolver contentResolver = getActivity().getContentResolver();
+                        Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+                        if (c.moveToFirst()) {
+                            // We found the ID. Deleting the item via the content provider will also remove the file
+                            long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                            Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                            int success = contentResolver.delete(deleteUri, null, null);
+
+                            Log.i(TAG, "Image deleted success " + success);
+                        } else {
+                            // File not found in media store DB
+                            Log.i(TAG, imageFile.getAbsolutePath() + " not found in MediaStore");
+                        }
+                        c.close();
+
+                        imageUriList.remove(imageIndex);
+
+                        String[] imageUris = imageUriList.toArray(new String[imageUriList.size()]);
+
+                        getActivity().finish();
+                        Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
+                        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+                        intent.putExtra(Constants.Extra.IMAGE_POSITION, imageIndex);
+                        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
+                        startActivity(intent);
+                    }
+                });
+                builder.setNegativeButton(R.string.delete_dialog_negative, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                        // do nothing
+                    }
+                });
+
+                // 3. Get the AlertDialog from create()
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
 
@@ -181,7 +207,14 @@ public class ImagePagerFragment extends BaseFragment {
         addButtonListeners();
     }
 
-    
+    @Override
+    public void onBackPressed() {
+        Log.i(TAG, "Back button pressed.");
+
+        Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
+        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGridFragment.INDEX);
+        startActivity(intent);
+    }
 
     private class ImageAdapter extends PagerAdapter {
 		private LayoutInflater inflater;
