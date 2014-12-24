@@ -15,7 +15,6 @@
  *******************************************************************************/
 package com.amuletxheart.cameraderie.gallery.fragment;
 
-import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
@@ -64,6 +63,12 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
     private String[] loadImagesFromDCIM(){
         File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "CAMERAderie");
+
+        if (! imageDir.exists()){
+            if (! imageDir.mkdirs()){
+                Log.e("CAMERAderie", "failed to create directory");
+            }
+        }
 
         File[] imageFiles = imageDir.listFiles(new FilenameFilter() {
             @Override
