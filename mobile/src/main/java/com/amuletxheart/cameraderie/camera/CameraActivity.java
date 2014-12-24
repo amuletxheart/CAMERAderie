@@ -9,6 +9,7 @@ import android.hardware.Camera;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +21,9 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.amuletxheart.cameraderie.R;
+import com.amuletxheart.cameraderie.gallery.Constants;
+import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
+import com.amuletxheart.cameraderie.gallery.fragment.ImagePagerFragment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -31,6 +35,7 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -268,15 +273,27 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 player.start();
                 FileOutputStream outStream = null;
                 try {
-                    String filename = String.format("/sdcard/DCIM/Camera/img_wear_%d.jpg", System.currentTimeMillis());
-                    outStream = new FileOutputStream(filename);
+                    File imageDir = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_PICTURES), "CAMERAderie");
+
+                    if (! imageDir.exists()){
+                        if (! imageDir.mkdirs()){
+                            Log.e("CAMERAderie", "failed to create directory");
+                        }
+                    }
+
+                    String filename = String.format("/img_wear_%d.jpg", System.currentTimeMillis());
+                    File imageFile = new File(imageDir + filename);
+
+                    outStream = new FileOutputStream(imageFile);
                     outStream.write(data);
                     outStream.close();
                     if(D) Log.d(TAG, "wrote bytes: " + data.length);
-                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + filename)));
+                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
                     BitmapFactory.Options opts = new BitmapFactory.Options();
                     opts.inSampleSize = 4;
                     Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length, opts);
+                    /* //Animation
                     mImageView.setImageBitmap(bmp);
                     mImageView.setX(0);
                     mImageView.setRotation(0);
@@ -285,7 +302,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                         public void run() {
                             mImageView.setVisibility(View.GONE);
                         }
-                    });
+                    });*/
                     int smallWidth, smallHeight;
                     int dimension = 280;
                     if(bmp.getWidth() > bmp.getHeight()) {
@@ -300,6 +317,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     bmpSmall.compress(Bitmap.CompressFormat.WEBP, 50, baos);
                     sendToWearable("result", baos.toByteArray(), null);
                     mCamera.startPreview();
+
+                    startImagePagerActivity(imageFile.getPath());
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -308,6 +327,17 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             }
         };
         mCamera.takePicture(null, null, jpegCallback);
+    }
+
+    private void startImagePagerActivity(String filename){
+        String[] imageUris = {"file://" + filename};
+
+        Intent intent = new Intent(this, SimpleImageActivity.class);
+        intent.putExtra(Constants.Extra.CAMERA_PREVIEW, true);
+        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+        intent.putExtra(Constants.Extra.IMAGE_POSITION, 0);
+        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
+        startActivity(intent);
     }
 
     public void surfaceView_onClick(View view) {

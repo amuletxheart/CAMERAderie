@@ -15,36 +15,173 @@
  *******************************************************************************/
 package com.amuletxheart.cameraderie.gallery.fragment;
 
+import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Parcelable;
+import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.amuletxheart.cameraderie.R;
+import com.amuletxheart.cameraderie.gallery.Constants;
+import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
+import com.amuletxheart.cameraderie.gallery.photoview.HackyViewPager;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.amuletxheart.cameraderie.gallery.Constants;
-import com.amuletxheart.cameraderie.R;
+import com.nostra13.universalimageloader.utils.DiskCacheUtils;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+
+import android.net.Uri;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import uk.co.senab.photoview.PhotoView;
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
 public class ImagePagerFragment extends BaseFragment {
+    private static final String TAG = ImagePagerFragment.class.getName();
 
 	public static final int INDEX = 2;
 
-	String[] imageUrls;
+    private ViewPager imagePager;
+	private String[] imageUrls;
+    private boolean cameraPreview;
 
-	DisplayImageOptions options;
+	private DisplayImageOptions options;
+
+    public void addButtonListeners() {
+        final ImageButton imageButtonTrash = (ImageButton) getView().findViewById(R.id.imageButtonTrash);
+        imageButtonTrash.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.i(TAG, "Clicked on trash button.");
+
+                // 1. Instantiate an AlertDialog.Builder with its constructor
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                // 2. Chain together various setter methods to set the dialog characteristics
+                builder.setMessage(R.string.delete_dialog_message)
+                        .setTitle(R.string.delete_dialog_title);
+
+                builder.setPositiveButton(R.string.delete_dialog_positive, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int dialogId) {
+                        // User clicked OK button
+
+                        int imageIndex = imagePager.getCurrentItem();
+                        Log.i(TAG, "Deleting image index " + imageIndex);
+
+                        //Convert array to List for easier manipulation
+                        List<String> imageUriList = new ArrayList<String>(Arrays.asList(imageUrls));
+
+                        String imageURIString = imageUriList.get(imageIndex);
+                        Log.i(TAG, "Deleting image URI " + imageURIString);
+
+                        Uri imageUri = Uri.parse(imageURIString);
+                        File imageFile = new File(imageUri.getPath());
+
+                        MemoryCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getMemoryCache());
+                        DiskCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getDiskCache());
+
+                        //Delete from MediaStore, adapted from http://stackoverflow.com/a/20780472/1966873
+                        // Set up the projection (we only need the ID)
+                        String[] projection = { MediaStore.Images.Media._ID };
+
+                        // Match on the file path
+                        String selection = MediaStore.Images.Media.DATA + " = ?";
+                        String[] selectionArgs = new String[] { imageFile.getAbsolutePath() };
+
+                        // Query for the ID of the media matching the file path
+                        Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                        ContentResolver contentResolver = getActivity().getContentResolver();
+                        Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+                        if (c.moveToFirst()) {
+                            // We found the ID. Deleting the item via the content provider will also remove the file
+                            long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                            Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                            int success = contentResolver.delete(deleteUri, null, null);
+
+                            Log.i(TAG, "Image deleted success " + success);
+                        } else {
+                            // File not found in media store DB
+                            Log.i(TAG, imageFile.getAbsolutePath() + " not found in MediaStore");
+                        }
+                        c.close();
+
+                        imageUriList.remove(imageIndex);
+
+                        getActivity().finish();
+
+                        if(cameraPreview){
+                            Log.i(TAG, "Camera preview is true");
+                            onBackPressed();
+                        }
+                        else{
+                            if(imageUriList.isEmpty()){
+                                onBackPressed();
+                            }
+                            else{
+                                String[] imageUris = imageUriList.toArray(new String[imageUriList.size()]);
+                                Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
+                                intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+                                intent.putExtra(Constants.Extra.IMAGE_POSITION, imageIndex);
+                                intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
+                                startActivity(intent);
+                            }
+                        }
+                    }
+                });
+                builder.setNegativeButton(R.string.delete_dialog_negative, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                        // do nothing
+                    }
+                });
+
+                // 3. Get the AlertDialog from create()
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+
+        final ImageButton imageButtonEdit = (ImageButton) getView().findViewById(R.id.imageButtonEdit);
+        imageButtonEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Clicked on edit button.");
+            }
+        });
+
+        final ImageButton imageButtonShare = (ImageButton) getView().findViewById(R.id.imageButtonShare);
+        imageButtonShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Click on share button.");
+            }
+        });
+    }
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -56,25 +193,48 @@ public class ImagePagerFragment extends BaseFragment {
 				.resetViewBeforeLoading(true)
 				.cacheOnDisk(true)
 				.imageScaleType(ImageScaleType.EXACTLY)
-				.bitmapConfig(Bitmap.Config.RGB_565)
+				.bitmapConfig(Bitmap.Config.ARGB_8888)
 				.considerExifParams(true)
 				.displayer(new FadeInBitmapDisplayer(300))
 				.build();
 
         imageUrls = getArguments().getStringArray(Constants.Extra.IMAGE_URIS);
+        cameraPreview = getArguments().getBoolean(Constants.Extra.CAMERA_PREVIEW);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fr_image_pager, container, false);
-		ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
+		ViewPager pager = (HackyViewPager) rootView.findViewById(R.id.pager);
 		pager.setAdapter(new ImageAdapter());
 		pager.setCurrentItem(getArguments().getInt(Constants.Extra.IMAGE_POSITION, 0));
+
+        imagePager = pager;
 		return rootView;
 	}
 
-	private class ImageAdapter extends PagerAdapter {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        addButtonListeners();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.i(TAG, "Back button pressed.");
+
+        if(cameraPreview){
+
+        }
+        else{
+            Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
+            intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGridFragment.INDEX);
+            startActivity(intent);
+        }
+    }
+
+    private class ImageAdapter extends PagerAdapter {
 		private LayoutInflater inflater;
 
 		ImageAdapter() {
@@ -95,10 +255,13 @@ public class ImagePagerFragment extends BaseFragment {
 		public Object instantiateItem(ViewGroup view, int position) {
 			View imageLayout = inflater.inflate(R.layout.item_pager_image, view, false);
 			assert imageLayout != null;
-			ImageView imageView = (ImageView) imageLayout.findViewById(R.id.image);
+			PhotoView photoView = (PhotoView) imageLayout.findViewById(R.id.image);
+            photoView.setMediumScale(2.0f);
+            photoView.setMaximumScale(4.0f);
+
 			final ProgressBar spinner = (ProgressBar) imageLayout.findViewById(R.id.loading);
 
-			ImageLoader.getInstance().displayImage(imageUrls[position], imageView, options, new SimpleImageLoadingListener() {
+			ImageLoader.getInstance().displayImage(imageUrls[position], photoView, options, new SimpleImageLoadingListener() {
 				@Override
 				public void onLoadingStarted(String imageUri, View view) {
 					spinner.setVisibility(View.VISIBLE);

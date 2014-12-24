@@ -16,8 +16,10 @@
 package com.amuletxheart.cameraderie.gallery.activity;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +40,7 @@ import java.io.InputStream;
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
-public class HomeActivity extends Activity {
+public class GalleryHomeActivity extends Activity {
 
 	private static final String TEST_FILE_NAME = "Universal Image Loader @#&=+-_.,!()~'%20.png";
 

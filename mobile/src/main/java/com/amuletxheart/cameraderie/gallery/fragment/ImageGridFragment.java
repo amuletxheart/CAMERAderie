@@ -15,8 +15,12 @@
  *******************************************************************************/
 package com.amuletxheart.cameraderie.gallery.fragment;
 
+import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,18 +29,21 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.amuletxheart.cameraderie.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,13 +57,15 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
     //Test images
 	//String[] imageUrls = Constants.IMAGES;
 
-    String[] imageUrls = loadImagesFromDCIM();
+    private String[] imageUrls = loadImagesFromDCIM();
 
 	DisplayImageOptions options;
 
     private String[] loadImagesFromDCIM(){
-        File imageFolder = new File("/sdcard/DCIM/Camera");
-        File[] imageFiles = imageFolder.listFiles(new FilenameFilter() {
+        File imageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "CAMERAderie");
+
+        File[] imageFiles = imageDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
                 if(filename.startsWith("img_wear_")){
@@ -74,6 +83,8 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
         for(File image : imageFiles){
             imageURIList.add("file://" + image.getAbsolutePath());
         }
+        Collections.sort(imageURIList);
+        Collections.reverse(imageURIList);
         imageURIArray = imageURIList.toArray(new String[imageURIList.size()]);
 
         return imageURIArray;
@@ -90,9 +101,10 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 				.cacheInMemory(true)
 				.cacheOnDisk(true)
 				.considerExifParams(true)
+                .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
 				.bitmapConfig(Bitmap.Config.RGB_565)
 				.build();
-	}
+    }
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -102,13 +114,29 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                getActivity().finish();
 				startImagePagerActivity(imageUrls, position);
 			}
 		});
 		return rootView;
 	}
 
-	public class ImageAdapter extends BaseAdapter {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        LinearLayout linearLayoutInfo = (LinearLayout)getView().findViewById(R.id.linearLayoutInfo);
+        if(imageUrls.length == 0){
+            linearLayoutInfo.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.v(TAG, "Back button pressed.");
+    }
+
+    public class ImageAdapter extends BaseAdapter {
 
 		private LayoutInflater inflater;
 
