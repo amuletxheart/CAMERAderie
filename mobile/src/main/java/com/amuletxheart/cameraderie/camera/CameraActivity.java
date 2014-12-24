@@ -278,7 +278,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
                     if (! imageDir.exists()){
                         if (! imageDir.mkdirs()){
-                            Log.e("CAMERAderie", "failed to create directory");
+                            Log.e(TAG, "failed to create directory");
                         }
                     }
 

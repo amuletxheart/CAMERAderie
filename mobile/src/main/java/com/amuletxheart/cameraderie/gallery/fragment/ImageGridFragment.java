@@ -66,7 +66,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 
         if (! imageDir.exists()){
             if (! imageDir.mkdirs()){
-                Log.e("CAMERAderie", "failed to create directory");
+                Log.e(TAG, "failed to create directory");
             }
         }
 
