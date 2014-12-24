@@ -333,6 +333,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         String[] imageUris = {"file://" + filename};
 
         Intent intent = new Intent(this, SimpleImageActivity.class);
+        intent.putExtra(Constants.Extra.CAMERA_PREVIEW, true);
         intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
         intent.putExtra(Constants.Extra.IMAGE_POSITION, 0);
         intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);

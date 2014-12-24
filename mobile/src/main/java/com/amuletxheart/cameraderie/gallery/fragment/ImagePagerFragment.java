@@ -68,9 +68,10 @@ public class ImagePagerFragment extends BaseFragment {
 	public static final int INDEX = 2;
 
     private ViewPager imagePager;
-	String[] imageUrls;
+	private String[] imageUrls;
+    private boolean cameraPreview;
 
-	DisplayImageOptions options;
+	private DisplayImageOptions options;
 
     public void addButtonListeners() {
         final ImageButton imageButtonTrash = (ImageButton) getView().findViewById(R.id.imageButtonTrash);
@@ -131,14 +132,25 @@ public class ImagePagerFragment extends BaseFragment {
 
                         imageUriList.remove(imageIndex);
 
-                        String[] imageUris = imageUriList.toArray(new String[imageUriList.size()]);
-
                         getActivity().finish();
-                        Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
-                        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
-                        intent.putExtra(Constants.Extra.IMAGE_POSITION, imageIndex);
-                        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
-                        startActivity(intent);
+
+                        if(cameraPreview){
+                            Log.i(TAG, "Camera preview is true");
+                            onBackPressed();
+                        }
+                        else{
+                            if(imageUriList.isEmpty()){
+                                onBackPressed();
+                            }
+                            else{
+                                String[] imageUris = imageUriList.toArray(new String[imageUriList.size()]);
+                                Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
+                                intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+                                intent.putExtra(Constants.Extra.IMAGE_POSITION, imageIndex);
+                                intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
+                                startActivity(intent);
+                            }
+                        }
                     }
                 });
                 builder.setNegativeButton(R.string.delete_dialog_negative, new DialogInterface.OnClickListener() {
@@ -187,6 +199,7 @@ public class ImagePagerFragment extends BaseFragment {
 				.build();
 
         imageUrls = getArguments().getStringArray(Constants.Extra.IMAGE_URIS);
+        cameraPreview = getArguments().getBoolean(Constants.Extra.CAMERA_PREVIEW);
 	}
 
 	@Override
@@ -211,9 +224,14 @@ public class ImagePagerFragment extends BaseFragment {
     public void onBackPressed() {
         Log.i(TAG, "Back button pressed.");
 
-        Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGridFragment.INDEX);
-        startActivity(intent);
+        if(cameraPreview){
+
+        }
+        else{
+            Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
+            intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGridFragment.INDEX);
+            startActivity(intent);
+        }
     }
 
     private class ImageAdapter extends PagerAdapter {

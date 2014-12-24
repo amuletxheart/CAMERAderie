@@ -19,6 +19,7 @@ import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.amuletxheart.cameraderie.R;
@@ -118,6 +120,16 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 		});
 		return rootView;
 	}
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        LinearLayout linearLayoutInfo = (LinearLayout)getView().findViewById(R.id.linearLayoutInfo);
+        if(imageUrls.length == 0){
+            linearLayoutInfo.setVisibility(View.VISIBLE);
+        }
+    }
 
     @Override
     public void onBackPressed() {
