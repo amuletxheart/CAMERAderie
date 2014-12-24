@@ -22,8 +22,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -49,8 +49,6 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
-
-import android.net.Uri;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -179,6 +177,29 @@ public class ImagePagerFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Click on share button.");
+
+                int imageIndex = imagePager.getCurrentItem();
+
+                String imageURIString = imageUrls[imageIndex];
+
+                Uri imageUri = Uri.parse(imageURIString);
+                Log.i(TAG, "Image URI: " + imageUri.toString());
+
+                String type = "image/*";
+                String captionText = "#Selfie@NYP-SIT";
+
+                // Create the new Intent using the 'Send' action.
+                Intent share = new Intent(Intent.ACTION_SEND);
+
+                // Set the MIME type
+                share.setType(type);
+
+                // Add the URI and the caption to the Intent.
+                share.putExtra(Intent.EXTRA_STREAM, imageUri);
+                share.putExtra(Intent.EXTRA_TEXT, captionText);
+
+                // Broadcast the Intent.
+                startActivity(Intent.createChooser(share, "Share to"));
             }
         });
     }
