@@ -37,6 +37,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.amuletxheart.cameraderie.EditPhotoActivity;
 import com.amuletxheart.cameraderie.R;
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
@@ -169,6 +170,17 @@ public class ImagePagerFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Clicked on edit button.");
+
+                int imageIndex = imagePager.getCurrentItem();
+
+                String imageURIString = imageUrls[imageIndex];
+
+                Uri imageUri = Uri.parse(imageURIString);
+                Log.i(TAG, "Image URI: " + imageUri.toString());
+
+                Intent intent = new Intent(getActivity(), EditPhotoActivity.class);
+                intent.putExtra(Constants.Extra.IMAGE_URI, imageUri);
+                startActivity(intent);
             }
         });
 
