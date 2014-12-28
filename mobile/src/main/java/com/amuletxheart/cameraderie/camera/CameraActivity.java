@@ -277,17 +277,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_PICTURES), "CAMERAderie");
 
-                    if (! imageDir.exists()){
-                        if (! imageDir.mkdirs()){
-                            Log.e(TAG, "failed to create directory");
-                        }
-                    }
-
                     String filename = String.format("/img_wear_%d.jpg", System.currentTimeMillis());
                     File imageFile = new File(imageDir + filename);
 
                     outStream = new FileOutputStream(imageFile);
-                    outStream.write(data);
+                        outStream.write(data);
                     outStream.close();
                     if(D) Log.d(TAG, "wrote bytes: " + data.length);
                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));

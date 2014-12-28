@@ -1,9 +1,16 @@
 package com.amuletxheart.cameraderie;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -17,12 +24,17 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import uk.co.senab.photoview.PhotoView;
+
 public class EditPhotoActivity extends ActionBarActivity {
     private static final String TAG = MainActivity.class.getName();
-    ImageView im;
-    int windowwidth;
-    int windowheight;
-    ImageView ima1, ima2;
+    Uri imageUri;
+    ImageView frame;
+    PhotoView image;
     DisplayImageOptions options;
 
     private android.widget.RelativeLayout.LayoutParams layoutParams;
@@ -31,6 +43,8 @@ public class EditPhotoActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_photo);
+
+        onWindowFocusChanged(true);
 
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.ic_empty)
@@ -43,63 +57,57 @@ public class EditPhotoActivity extends ActionBarActivity {
                 .displayer(new FadeInBitmapDisplayer(300))
                 .build();
 
-        Uri imageUri = getIntent().getParcelableExtra(Constants.Extra.IMAGE_URI);
+        imageUri = getIntent().getParcelableExtra(Constants.Extra.IMAGE_URI);
 
-        windowwidth = getWindowManager().getDefaultDisplay().getWidth();
-        windowheight = getWindowManager().getDefaultDisplay().getHeight();
+        frame = (ImageView)findViewById(R.id.frame);
+        image = (PhotoView)findViewById(R.id.image);
 
-        System.out.println("width" +windowwidth);
-        System.out.println("height" +windowheight);
-
-        ima1 = (ImageView)findViewById(R.id.frame);
-
-        ima2 = (ImageView)findViewById(R.id.image);
-        //image will be set here
         ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.displayImage("file://" + imageUri.getPath(), ima2, options);
-        //ima2.setImageResource(imageUri);
-        ima2.setOnTouchListener(new View.OnTouchListener() {
-
-            public boolean onTouch(View v, MotionEvent event) {
-                layoutParams = (RelativeLayout.LayoutParams) ima2.getLayoutParams();
-
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        break;
-
-                    case MotionEvent.ACTION_MOVE:
-                        int x_cord = (int) event.getRawX();
-                        int y_cord = (int) event.getRawY();
-
-                        System.out.println("value of x" + x_cord);
-                        System.out.println("value of y" + y_cord);
-
-                        if (x_cord > windowwidth) {
-                            x_cord = windowwidth;
-                        }
-                        if (y_cord > windowheight) {
-                            y_cord = windowheight;
-                        }
-                        layoutParams.leftMargin = x_cord - 50;
-                        layoutParams.topMargin = y_cord - 150;
-                        //   layoutParams.rightMargin = x_cord-25;
-                        //   layoutParams.bottomMargin = y_cord-25;
-                        ima2.setLayoutParams(layoutParams);
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-        });
+        imageLoader.displayImage("file://" + imageUri.getPath(), image, options);
     }
+
+    public void saveCompositeImage(View v){
+        Bitmap frameBitmap = null;
+        Bitmap imageBitmap = null;
+
+        Drawable frameDrawable = frame.getDrawable();
+        if (frameDrawable instanceof BitmapDrawable) {
+            BitmapDrawable d = (BitmapDrawable) frameDrawable;
+            frameBitmap = d.getBitmap();
+        }
+
+        Drawable imageDrawable = image.getDrawable();
+        if (imageDrawable instanceof BitmapDrawable) {
+            BitmapDrawable d = (BitmapDrawable) imageDrawable;
+            imageBitmap = d.getBitmap();
+        }
+        //crop image to what is visible on screen
+        Bitmap croppedBitmap = crop(image);
+        //scale image down to size of the frame
+        Bitmap scaledImageBitmap = Bitmap.createScaledBitmap(croppedBitmap,
+                frameBitmap.getWidth(), frameBitmap.getHeight(), true);
+        //overlay the 2 bitmaps together as 1
+        Bitmap compositeBitmap = overlay(scaledImageBitmap, frameBitmap);
+
+        File compositeImage = new File(imageUri.getPath().replace(".jpg", "_edited.jpg"));
+
+        try{
+            FileOutputStream outStream = new FileOutputStream(compositeImage);
+            compositeBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+            outStream.close();
+
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compositeImage)));
+        }
+        catch(IOException e){
+            Log.e(TAG, "Unable to write the edited image file.", e);
+        }
+    }
+
     public void biggerView(View v)
     {
-        im=(ImageView)findViewById(R.id.frame);
-
-        switch (v.getId())
+         switch (v.getId())
         {
-            case R.id.image1: im.setImageResource(R.drawable.frame_02_small);
+            case R.id.image1: frame.setImageResource(R.drawable.frame_02_small);
                 break;
             /*case R.id.image2: im.setImageResource(R.drawable.frame_02_small);
                 break;
@@ -113,6 +121,21 @@ public class EditPhotoActivity extends ActionBarActivity {
                 break;
             case R.id.image7: im.setImageResource(R.drawable.frame_07);
                 break;*/
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(hasFocus){
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            decorView.setSystemUiVisibility(uiOptions);
         }
     }
 
@@ -136,5 +159,58 @@ public class EditPhotoActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private Bitmap overlay(Bitmap bmp1, Bitmap bmp2) {
+        Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
+        Canvas canvas = new Canvas(bmOverlay);
+        canvas.drawBitmap(bmp1, new Matrix(), null);
+        canvas.drawBitmap(bmp2, new Matrix(), null);
+        return bmOverlay;
+    }
+
+    private Bitmap crop(PhotoView photoView){
+        Bitmap imageBitmap = null;
+        Drawable imageDrawable = photoView.getDrawable();
+        if (imageDrawable instanceof BitmapDrawable) {
+            BitmapDrawable d = (BitmapDrawable) imageDrawable;
+            imageBitmap = d.getBitmap();
+        }
+
+        RectF rect = photoView.getDisplayRect();
+        float viewScale = photoView.getScale();
+
+        float imageRatio = (float)imageBitmap.getWidth() / (float)imageBitmap.getHeight();
+        float viewRatio = (float)photoView.getWidth() / (float)photoView.getHeight();
+
+        float scale = 0;
+        if (imageRatio > viewRatio) {
+            // scale is based on image width
+            scale = 1 / ((float)imageBitmap.getWidth() / (float)photoView.getWidth() / viewScale);
+
+        } else {
+            // scale is based on image height, or 1
+            scale = 1 / ((float)imageBitmap.getHeight() / (float)photoView.getHeight() / viewScale);
+        }
+
+        // translate to bitmap scale
+        rect.left       = -rect.left / scale;
+        rect.top        = -rect.top / scale;
+        rect.right      = rect.left + ((float)photoView.getWidth() / scale);
+        rect.bottom     = rect.top + ((float)photoView.getHeight() / scale);
+
+        if (rect.top<0) {
+            rect.bottom -= Math.abs(rect.top);
+            rect.top = 0;
+        }
+        if (rect.left<0) {
+            rect.right -= Math.abs(rect.left);
+            rect.left = 0;
+        }
+
+        Bitmap croppedImage = Bitmap.createBitmap(imageBitmap,(int)rect.left,(int)rect.top,
+                (int)rect.width(), (int)rect.height());
+
+        return croppedImage;
     }
 }

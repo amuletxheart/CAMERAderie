@@ -64,12 +64,6 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
         File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "CAMERAderie");
 
-        if (! imageDir.exists()){
-            if (! imageDir.mkdirs()){
-                Log.e(TAG, "failed to create directory");
-            }
-        }
-
         File[] imageFiles = imageDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
