@@ -62,6 +62,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private GoogleApiClient mGoogleApiClient;
     private Node mWearableNode = null;
     private boolean readyToProcessImage = true;
+    private boolean safeToTakePicture = false;
 
     private static int currentCamera = Camera.CameraInfo.CAMERA_FACING_BACK;
     private static String currentFlashMode = Camera.Parameters.FLASH_MODE_OFF;
@@ -327,6 +328,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             }
         };
         mCamera.takePicture(null, null, jpegCallback);
+        safeToTakePicture = true;
     }
 
     private void startImagePagerActivity(String filename){
@@ -341,7 +343,10 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     public void surfaceView_onClick(View view) {
-        doSnap();
+        if(safeToTakePicture){
+            doSnap();
+            safeToTakePicture = false;
+        }
     }
 
     private void sendToWearable(String path, byte[] data, final ResultCallback<MessageApi.SendMessageResult> callback) {
@@ -451,6 +456,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         }
         mCamera.startPreview();
         mPreviewRunning = true;
+        safeToTakePicture = true;
     }
 
     @Override
