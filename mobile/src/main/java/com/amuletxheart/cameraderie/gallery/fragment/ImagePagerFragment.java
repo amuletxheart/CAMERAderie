@@ -179,7 +179,7 @@ public class ImagePagerFragment extends BaseFragment {
                 Log.i(TAG, "Image URI: " + imageUri.toString());
 
                 Intent intent = new Intent(getActivity(), EditPhotoActivity.class);
-                intent.putExtra(Constants.Extra.CAMERA_PREVIEW, true);
+                intent.putExtra(Constants.Extra.CAMERA_PREVIEW, cameraPreview);
                 intent.putExtra(Constants.Extra.IMAGE_URIS, imageUrls);
                 intent.putExtra(Constants.Extra.IMAGE_POSITION, imageIndex);
                 startActivity(intent);

@@ -63,6 +63,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private Node mWearableNode = null;
     private boolean readyToProcessImage = true;
     private boolean safeToTakePicture = false;
+    private boolean frontCamera = false;
 
     private static int currentCamera = Camera.CameraInfo.CAMERA_FACING_BACK;
     private static String currentFlashMode = Camera.Parameters.FLASH_MODE_OFF;
@@ -334,6 +335,17 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         intent.putExtra(Constants.Extra.IMAGE_POSITION, 0);
         intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
         startActivity(intent);
+    }
+
+    public void clickSwitchCamera(View v){
+        if(frontCamera){
+            doSwitch(0);
+            frontCamera = false;
+        }
+        else{
+            doSwitch(1);
+            frontCamera = true;
+        }
     }
 
     public void surfaceView_onClick(View view) {

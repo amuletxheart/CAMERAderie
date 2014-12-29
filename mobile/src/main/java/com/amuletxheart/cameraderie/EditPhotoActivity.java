@@ -1,9 +1,12 @@
 package com.amuletxheart.cameraderie;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -55,6 +59,12 @@ public class EditPhotoActivity extends ActionBarActivity {
 
         onWindowFocusChanged(true);
 
+        ImageButton imageButtonDiscard = (ImageButton)findViewById(R.id.imageButtonDiscard);
+        setImageButtonEnabled(this, false, imageButtonDiscard, R.drawable.ic_action_cancel);
+
+        ImageButton imageButtonSave = (ImageButton)findViewById(R.id.imageButtonSave);
+        setImageButtonEnabled(this, false, imageButtonSave, R.drawable.ic_action_save);
+
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.ic_empty)
                 .showImageOnFail(R.drawable.ic_error)
@@ -82,6 +92,12 @@ public class EditPhotoActivity extends ActionBarActivity {
     public void clickDiscard(View v){
         Log.i(TAG, "Clicked on discard button.");
         frame.setImageResource(android.R.color.transparent);
+
+        ImageButton imageButtonDiscard = (ImageButton)findViewById(R.id.imageButtonDiscard);
+        setImageButtonEnabled(this, false, imageButtonDiscard, R.drawable.ic_action_cancel);
+
+        ImageButton imageButtonSave = (ImageButton)findViewById(R.id.imageButtonSave);
+        setImageButtonEnabled(this, false, imageButtonSave, R.drawable.ic_action_save);
     }
 
     public void clickSave(View v){
@@ -140,6 +156,11 @@ public class EditPhotoActivity extends ActionBarActivity {
 
     public void biggerView(View v)
     {
+        ImageButton imageButtonDiscard = (ImageButton)findViewById(R.id.imageButtonDiscard);
+        setImageButtonEnabled(this, true, imageButtonDiscard, R.drawable.ic_action_cancel);
+
+        ImageButton imageButtonSave = (ImageButton)findViewById(R.id.imageButtonSave);
+        setImageButtonEnabled(this, true, imageButtonSave, R.drawable.ic_action_save);
          switch (v.getId())
         {
             case R.id.image1: frame.setImageResource(R.drawable.frame_02_small);
@@ -247,5 +268,38 @@ public class EditPhotoActivity extends ActionBarActivity {
                 (int)rect.width(), (int)rect.height());
 
         return croppedImage;
+    }
+
+    /**
+     * Sets the specified image buttonto the given state, while modifying or
+     * "graying-out" the icon as well
+     *
+     * @param enabled The state of the menu item
+     * @param item The menu item to modify
+     * @param iconResId The icon ID
+     */
+    public static void setImageButtonEnabled(Context ctxt, boolean enabled, ImageButton item,
+                                             int iconResId) {
+        item.setEnabled(enabled);
+        Drawable originalIcon = ctxt.getResources().getDrawable(iconResId);
+        Drawable icon = enabled ? originalIcon : convertDrawableToGrayScale(originalIcon);
+        item.setBackground(icon);
+    }
+
+    /**
+     * Mutates and applies a filter that converts the given drawable to a Gray
+     * image. This method may be used to simulate the color of disable icons in
+     * Honeycomb's ActionBar.
+     *
+     * @return a mutated version of the given drawable with a color filter
+     *         applied.
+     */
+    public static Drawable convertDrawableToGrayScale(Drawable drawable) {
+        if (drawable == null) {
+            return null;
+        }
+        Drawable res = drawable.mutate();
+        res.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_IN);
+        return res;
     }
 }
