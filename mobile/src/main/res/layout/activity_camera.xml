@@ -53,7 +53,7 @@
         android:id="@+id/imageButtonSwitchCamera"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:background="@drawable/ic_action_reload"
+        android:background="@drawable/ic_action_switch_camera"
         android:layout_margin="20dp"
 
         android:onClick="clickSwitchCamera"/>
