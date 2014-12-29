@@ -277,7 +277,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_PICTURES), "CAMERAderie");
 
-                    String filename = String.format("/img_wear_%d.jpg", System.currentTimeMillis());
+                    String filename = String.format("/cameraderie_%d.jpg", System.currentTimeMillis());
                     File imageFile = new File(imageDir + filename);
 
                     outStream = new FileOutputStream(imageFile);

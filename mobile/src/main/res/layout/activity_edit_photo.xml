@@ -18,27 +18,48 @@
     </LinearLayout>
 
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="50dp"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#80000000"
+        android:layout_above="@+id/gallery_linear_layout">
 
-        android:gravity="center"
-        android:layout_above="@+id/gallery_linear_layout"
-        android:layout_alignParentStart="true">
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="Back"/>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+        </Space>
 
-        <Button
-            android:id="@+id/btnDelete"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/btnSave"
-            android:text="Save"
-            android:onClick="saveCompositeImage"/>
-    </RelativeLayout>
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/imageButtonDiscard"
+            android:background="@drawable/ic_action_cancel"
+
+            android:onClick="clickDiscard"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+        </Space>
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/imageButtonSave"
+            android:background="@drawable/ic_action_save"
+
+            android:onClick="clickSave"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+        </Space>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/gallery_linear_layout"

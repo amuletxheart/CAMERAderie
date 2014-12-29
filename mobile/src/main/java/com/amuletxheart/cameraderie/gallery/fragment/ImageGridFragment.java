@@ -64,17 +64,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
         File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "CAMERAderie");
 
-        File[] imageFiles = imageDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String filename) {
-                if(filename.startsWith("img_wear_")){
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            }
-        });
+        File[] imageFiles = imageDir.listFiles();
 
         List<String> imageURIList = new ArrayList<String>();
         String[] imageURIArray;

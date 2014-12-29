@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.amuletxheart.cameraderie.gallery.Constants;
+import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
+import com.amuletxheart.cameraderie.gallery.fragment.ImagePagerFragment;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
@@ -27,6 +29,9 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import uk.co.senab.photoview.PhotoView;
 
@@ -36,6 +41,10 @@ public class EditPhotoActivity extends ActionBarActivity {
     ImageView frame;
     PhotoView image;
     DisplayImageOptions options;
+
+    private boolean cameraPreview;
+    private String[] imageUris;
+    private int imagePosition;
 
     private android.widget.RelativeLayout.LayoutParams layoutParams;
 
@@ -57,7 +66,11 @@ public class EditPhotoActivity extends ActionBarActivity {
                 .displayer(new FadeInBitmapDisplayer(300))
                 .build();
 
-        imageUri = getIntent().getParcelableExtra(Constants.Extra.IMAGE_URI);
+        cameraPreview = getIntent().getBooleanExtra(Constants.Extra.CAMERA_PREVIEW, false);
+        imageUris = getIntent().getStringArrayExtra(Constants.Extra.IMAGE_URIS);
+        imagePosition = getIntent().getIntExtra(Constants.Extra.IMAGE_POSITION, 0);
+
+        imageUri = Uri.parse(imageUris[imagePosition]);
 
         frame = (ImageView)findViewById(R.id.frame);
         image = (PhotoView)findViewById(R.id.image);
@@ -66,7 +79,14 @@ public class EditPhotoActivity extends ActionBarActivity {
         imageLoader.displayImage("file://" + imageUri.getPath(), image, options);
     }
 
-    public void saveCompositeImage(View v){
+    public void clickDiscard(View v){
+        Log.i(TAG, "Clicked on discard button.");
+        frame.setImageResource(android.R.color.transparent);
+    }
+
+    public void clickSave(View v){
+        Log.i(TAG, "Clicked on save button.");
+
         Bitmap frameBitmap = null;
         Bitmap imageBitmap = null;
 
@@ -89,7 +109,8 @@ public class EditPhotoActivity extends ActionBarActivity {
         //overlay the 2 bitmaps together as 1
         Bitmap compositeBitmap = overlay(scaledImageBitmap, frameBitmap);
 
-        File compositeImage = new File(imageUri.getPath().replace(".jpg", "_edited.jpg"));
+        String filename = String.format("%d", System.currentTimeMillis());
+        File compositeImage = new File(imageUri.getPath().replace(".jpg", "_edited_" + filename + ".jpg"));
 
         try{
             FileOutputStream outStream = new FileOutputStream(compositeImage);
@@ -101,6 +122,20 @@ public class EditPhotoActivity extends ActionBarActivity {
         catch(IOException e){
             Log.e(TAG, "Unable to write the edited image file.", e);
         }
+
+        finish();
+
+        List<String> imageUriList = new ArrayList<String>(Arrays.asList(imageUris));
+        imageUriList.add(imagePosition, "file://" + compositeImage.getAbsolutePath());
+
+        String[] imageUris = imageUriList.toArray(new String[imageUriList.size()]);
+        Intent intent = new Intent(this, SimpleImageActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(Constants.Extra.CAMERA_PREVIEW, cameraPreview);
+        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+        intent.putExtra(Constants.Extra.IMAGE_POSITION, imagePosition);
+        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
+        startActivity(intent);
     }
 
     public void biggerView(View v)
