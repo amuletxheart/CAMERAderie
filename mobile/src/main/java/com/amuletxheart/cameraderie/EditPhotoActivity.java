@@ -14,13 +14,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
@@ -29,18 +30,24 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
+import it.sephiroth.android.library.widget.HListView;
 import uk.co.senab.photoview.PhotoView;
 
 public class EditPhotoActivity extends ActionBarActivity {
     private static final String TAG = MainActivity.class.getName();
+    private EditPhotoActivity editPhotoActivity = this;
     Uri imageUri;
     ImageView frame;
     PhotoView image;
@@ -50,12 +57,32 @@ public class EditPhotoActivity extends ActionBarActivity {
     private String[] imageUris;
     private int imagePosition;
 
+    private String[] frameUrls;
+
     private android.widget.RelativeLayout.LayoutParams layoutParams;
+
+    private String[] loadImagesFromStorage(){
+        String [] filenames = null;
+        try{
+            filenames = getAssets().list("frames");
+        }
+        catch(IOException e){
+            Log.e(TAG, "Error loading frames. " + e);
+        }
+
+        for(int i = 0; i<filenames.length; i++){
+            filenames[i] = "assets://frames/" + filenames[i];
+        }
+
+        return filenames;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_photo);
+
+        frameUrls = loadImagesFromStorage();
 
         onWindowFocusChanged(true);
 
@@ -75,6 +102,8 @@ public class EditPhotoActivity extends ActionBarActivity {
                 .considerExifParams(true)
                 .displayer(new FadeInBitmapDisplayer(300))
                 .build();
+
+        loadListView();
 
         cameraPreview = getIntent().getBooleanExtra(Constants.Extra.CAMERA_PREVIEW, false);
         imageUris = getIntent().getStringArrayExtra(Constants.Extra.IMAGE_URIS);
@@ -154,30 +183,24 @@ public class EditPhotoActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
-    public void biggerView(View v)
-    {
-        ImageButton imageButtonDiscard = (ImageButton)findViewById(R.id.imageButtonDiscard);
-        setImageButtonEnabled(this, true, imageButtonDiscard, R.drawable.ic_action_cancel);
+    private void loadListView(){
+        HListView listView = (HListView) findViewById(R.id.listViewFrame);
+        listView.setAdapter(new ImageAdapter());
+        listView.setOnItemClickListener(new it.sephiroth.android.library.widget.AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(it.sephiroth.android.library.widget.AdapterView<?> adapterView, View view, int position, long id) {
+                Log.i(TAG, "Frame clicked: " + frameUrls[position]);
 
-        ImageButton imageButtonSave = (ImageButton)findViewById(R.id.imageButtonSave);
-        setImageButtonEnabled(this, true, imageButtonSave, R.drawable.ic_action_save);
-         switch (v.getId())
-        {
-            case R.id.image1: frame.setImageResource(R.drawable.frame_02_small);
-                break;
-            /*case R.id.image2: im.setImageResource(R.drawable.frame_02_small);
-                break;
-            case R.id.image3: im.setImageResource(R.drawable.frame_03);
-                break;
-            case R.id.image4: im.setImageResource(R.drawable.frame_04);
-                break;
-            case R.id.image5: im.setImageResource(R.drawable.frame_05);
-                break;
-            case R.id.image6: im.setImageResource(R.drawable.frame_06);
-                break;
-            case R.id.image7: im.setImageResource(R.drawable.frame_07);
-                break;*/
-        }
+                ImageButton imageButtonDiscard = (ImageButton)findViewById(R.id.imageButtonDiscard);
+                setImageButtonEnabled(editPhotoActivity, true, imageButtonDiscard, R.drawable.ic_action_cancel);
+
+                ImageButton imageButtonSave = (ImageButton)findViewById(R.id.imageButtonSave);
+                setImageButtonEnabled(editPhotoActivity, true, imageButtonSave, R.drawable.ic_action_save);
+
+                ImageLoader imageLoader = ImageLoader.getInstance();
+                imageLoader.displayImage(frameUrls[position], frame, options);
+            }
+        });
     }
 
     @Override
@@ -301,5 +324,74 @@ public class EditPhotoActivity extends ActionBarActivity {
         Drawable res = drawable.mutate();
         res.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_IN);
         return res;
+    }
+
+    class ImageAdapter extends BaseAdapter {
+
+        private LayoutInflater inflater;
+        private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+
+        ImageAdapter() {
+            inflater = LayoutInflater.from(editPhotoActivity);
+        }
+
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+            .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
+            .showImageOnLoading(R.drawable.ic_stub)
+            .showImageForEmptyUri(R.drawable.ic_empty)
+            .showImageOnFail(R.drawable.ic_error)
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .considerExifParams(true)
+            .build();
+
+        @Override
+        public int getCount() {
+            return frameUrls.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return position;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            View view = convertView;
+            final ImageView imageView;
+            if (convertView == null) {
+                view = inflater.inflate(R.layout.item_list_image, parent, false);
+                imageView = (ImageView) view.findViewById(R.id.image);
+                view.setTag(imageView);
+            } else {
+                imageView = (ImageView) view.getTag();
+            }
+
+            ImageLoader.getInstance().displayImage(frameUrls[position], imageView, options, animateFirstListener);
+
+            return view;
+        }
+    }
+
+    private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
+
+        static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            if (loadedImage != null) {
+                ImageView imageView = (ImageView) view;
+                boolean firstDisplay = !displayedImages.contains(imageUri);
+                if (firstDisplay) {
+                    FadeInBitmapDisplayer.animate(imageView, 500);
+                    displayedImages.add(imageUri);
+                }
+            }
+        }
     }
 }

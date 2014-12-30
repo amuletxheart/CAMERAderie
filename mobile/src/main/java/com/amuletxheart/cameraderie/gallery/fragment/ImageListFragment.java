@@ -121,7 +121,7 @@ public class ImageListFragment extends AbsListViewBaseFragment {
 			if (convertView == null) {
 				view = inflater.inflate(R.layout.item_list_image, parent, false);
 				holder = new ViewHolder();
-				holder.text = (TextView) view.findViewById(R.id.text);
+				//holder.text = (TextView) view.findViewById(R.id.text);
 				holder.image = (ImageView) view.findViewById(R.id.image);
 				view.setTag(holder);
 			} else {

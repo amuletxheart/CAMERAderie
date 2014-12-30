@@ -56,11 +56,11 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
     //Test images
 	//String[] imageUrls = Constants.IMAGES;
 
-    private String[] imageUrls = loadImagesFromDCIM();
+    private String[] imageUrls = loadImagesFromStorage();
 
 	DisplayImageOptions options;
 
-    private String[] loadImagesFromDCIM(){
+    private String[] loadImagesFromStorage(){
         File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "CAMERAderie");
 
