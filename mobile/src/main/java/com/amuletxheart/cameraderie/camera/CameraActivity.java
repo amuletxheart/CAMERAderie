@@ -63,6 +63,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private Node mWearableNode = null;
     private boolean readyToProcessImage = true;
     private boolean safeToTakePicture = false;
+    private boolean frontCamera = false;
 
     private static int currentCamera = Camera.CameraInfo.CAMERA_FACING_BACK;
     private static String currentFlashMode = Camera.Parameters.FLASH_MODE_OFF;
@@ -277,17 +278,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_PICTURES), "CAMERAderie");
 
-                    if (! imageDir.exists()){
-                        if (! imageDir.mkdirs()){
-                            Log.e(TAG, "failed to create directory");
-                        }
-                    }
-
-                    String filename = String.format("/img_wear_%d.jpg", System.currentTimeMillis());
+                    String filename = String.format("/cameraderie_%d.jpg", System.currentTimeMillis());
                     File imageFile = new File(imageDir + filename);
 
                     outStream = new FileOutputStream(imageFile);
-                    outStream.write(data);
+                        outStream.write(data);
                     outStream.close();
                     if(D) Log.d(TAG, "wrote bytes: " + data.length);
                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
@@ -340,6 +335,17 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         intent.putExtra(Constants.Extra.IMAGE_POSITION, 0);
         intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
         startActivity(intent);
+    }
+
+    public void clickSwitchCamera(View v){
+        if(frontCamera){
+            doSwitch(0);
+            frontCamera = false;
+        }
+        else{
+            doSwitch(1);
+            frontCamera = true;
+        }
     }
 
     public void surfaceView_onClick(View view) {

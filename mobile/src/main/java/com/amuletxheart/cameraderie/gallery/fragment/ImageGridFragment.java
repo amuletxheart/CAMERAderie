@@ -56,31 +56,15 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
     //Test images
 	//String[] imageUrls = Constants.IMAGES;
 
-    private String[] imageUrls = loadImagesFromDCIM();
+    private String[] imageUrls = loadImagesFromStorage();
 
 	DisplayImageOptions options;
 
-    private String[] loadImagesFromDCIM(){
+    private String[] loadImagesFromStorage(){
         File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "CAMERAderie");
 
-        if (! imageDir.exists()){
-            if (! imageDir.mkdirs()){
-                Log.e(TAG, "failed to create directory");
-            }
-        }
-
-        File[] imageFiles = imageDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String filename) {
-                if(filename.startsWith("img_wear_")){
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            }
-        });
+        File[] imageFiles = imageDir.listFiles();
 
         List<String> imageURIList = new ArrayList<String>();
         String[] imageURIArray;

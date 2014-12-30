@@ -46,4 +46,15 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
         android:phoneNumber="false" />
+
+    <ImageButton
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageButtonSwitchCamera"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/ic_action_switch_camera"
+        android:layout_margin="20dp"
+
+        android:onClick="clickSwitchCamera"/>
 </RelativeLayout>

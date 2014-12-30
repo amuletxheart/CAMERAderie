@@ -2,6 +2,7 @@ package com.amuletxheart.cameraderie;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -14,6 +15,8 @@ import com.amuletxheart.cameraderie.gallery.activity.GalleryHomeActivity;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
 import com.amuletxheart.cameraderie.gallery.fragment.ImageGridFragment;
 
+import java.io.File;
+
 
 public class MainActivity extends ActionBarActivity {
     private static final String TAG = MainActivity.class.toString();
@@ -22,6 +25,15 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        File imageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "CAMERAderie");
+
+        if (! imageDir.exists()){
+            if (! imageDir.mkdirs()){
+                Log.e(TAG, "Failed to create directory");
+            }
+        }
     }
 
     @Override
