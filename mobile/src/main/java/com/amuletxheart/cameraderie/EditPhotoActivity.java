@@ -2,6 +2,7 @@ package com.amuletxheart.cameraderie;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -62,19 +63,35 @@ public class EditPhotoActivity extends ActionBarActivity {
     private android.widget.RelativeLayout.LayoutParams layoutParams;
 
     private String[] loadImagesFromStorage(){
-        String [] filenames = null;
+        String [] allFrames = null;
+        List<String> usingFramesList = new ArrayList<String>();
+        String [] usingFrames = null;
+        String fileStart;
         try{
-            filenames = getAssets().list("frames");
+            allFrames = getAssets().list("frames");
+            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                fileStart = "l";
+            }
+            else{
+                fileStart = "p";
+            }
+            for(String str : allFrames){
+                if(str.startsWith(fileStart)) {
+                    usingFramesList.add(str);
+                }
+            }
         }
         catch(IOException e){
             Log.e(TAG, "Error loading frames. " + e);
         }
 
-        for(int i = 0; i<filenames.length; i++){
-            filenames[i] = "assets://frames/" + filenames[i];
+        usingFrames = usingFramesList.toArray(new String[usingFramesList.size()]);
+
+        for(int i = 0; i<usingFrames.length; i++){
+            usingFrames[i] = "assets://frames/" + usingFrames[i];
         }
 
-        return filenames;
+        return usingFrames;
     }
 
     @Override
