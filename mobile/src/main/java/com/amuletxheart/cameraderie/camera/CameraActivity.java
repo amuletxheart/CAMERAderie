@@ -236,11 +236,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         if(Camera.getNumberOfCameras()>=2) {
             if(arg0 == 1) {
                 currentCamera = Camera.CameraInfo.CAMERA_FACING_FRONT;
+                frontCamera = true;
             } else {
                 currentCamera = Camera.CameraInfo.CAMERA_FACING_BACK;
+                frontCamera = false;
             }
         } else {
             currentCamera = Camera.CameraInfo.CAMERA_FACING_BACK;
+            frontCamera = false;
         }
 
         if((oldCurrentCamera != currentCamera) && mPreviewRunning) {
