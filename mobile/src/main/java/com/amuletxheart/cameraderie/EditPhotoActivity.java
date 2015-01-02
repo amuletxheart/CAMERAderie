@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
@@ -45,6 +46,7 @@ import java.util.List;
 
 import it.sephiroth.android.library.widget.HListView;
 import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class EditPhotoActivity extends ActionBarActivity {
     private static final String TAG = MainActivity.class.getName();
@@ -55,6 +57,7 @@ public class EditPhotoActivity extends ActionBarActivity {
     DisplayImageOptions options;
 
     private boolean cameraPreview;
+    private boolean showControls = true;
     private String[] imageUris;
     private int imagePosition;
 
@@ -109,6 +112,8 @@ public class EditPhotoActivity extends ActionBarActivity {
         ImageButton imageButtonSave = (ImageButton)findViewById(R.id.imageButtonSave);
         setImageButtonEnabled(this, false, imageButtonSave, R.drawable.ic_action_save);
 
+        clickShowControls();
+
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.ic_empty)
                 .showImageOnFail(R.drawable.ic_error)
@@ -133,6 +138,26 @@ public class EditPhotoActivity extends ActionBarActivity {
 
         ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.displayImage("file://" + imageUri.getPath(), image, options);
+    }
+
+    public void clickShowControls(){
+        PhotoView photoView = (PhotoView)findViewById(R.id.image);
+        final LinearLayout controls = (LinearLayout)findViewById(R.id.linearLayoutControls);
+        photoView.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
+            @Override
+            public void onViewTap(View view, float v, float v2) {
+                Log.i(TAG, "Clicked on show controls button.");
+
+                if(showControls){
+                    controls.setVisibility(View.INVISIBLE);
+                    showControls = false;
+                }
+                else{
+                    controls.setVisibility(View.VISIBLE);
+                    showControls = true;
+                }
+            }
+        });
     }
 
     public void clickDiscard(View v){

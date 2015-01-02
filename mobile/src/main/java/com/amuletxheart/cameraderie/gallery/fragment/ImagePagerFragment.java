@@ -34,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -57,6 +58,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
@@ -69,6 +71,7 @@ public class ImagePagerFragment extends BaseFragment {
     private ViewPager imagePager;
 	private String[] imageUrls;
     private boolean cameraPreview;
+    private boolean showControls = true;
 
 	private DisplayImageOptions options;
 
@@ -218,6 +221,25 @@ public class ImagePagerFragment extends BaseFragment {
         });
     }
 
+    public void clickShowControls(PhotoView photoView){
+        final LinearLayout controls = (LinearLayout)getView().findViewById(R.id.linearLayoutControls);
+        photoView.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
+            @Override
+            public void onViewTap(View view, float v, float v2) {
+                Log.i(TAG, "Clicked on show controls button.");
+
+                if(showControls){
+                    controls.setVisibility(View.INVISIBLE);
+                    showControls = false;
+                }
+                else{
+                    controls.setVisibility(View.VISIBLE);
+                    showControls = true;
+                }
+            }
+        });
+    }
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -307,6 +329,8 @@ public class ImagePagerFragment extends BaseFragment {
 			PhotoView photoView = (PhotoView) imageLayout.findViewById(R.id.image);
             photoView.setMediumScale(2.0f);
             photoView.setMaximumScale(4.0f);
+
+            clickShowControls(photoView);
 
 			final ProgressBar spinner = (ProgressBar) imageLayout.findViewById(R.id.loading);
 

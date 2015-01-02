@@ -3,11 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:animateLayoutChanges="true">
     <uk.co.senab.photoview.PhotoView
         android:id="@+id/image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
     <ImageView
         android:id="@+id/frame"
@@ -16,56 +17,66 @@
 
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#80000000"
-        android:layout_above="@+id/listViewFrame"
-        android:layout_alignParentStart="false">
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="false"
+        android:layout_marginBottom="20dp"
+        android:id="@+id/linearLayoutControls">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" >
-        </Space>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#80000000"
+            android:layout_above="@+id/listViewFrame"
+            android:layout_alignParentStart="false">
 
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/imageButtonDiscard"
-            android:background="@drawable/ic_action_cancel"
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" >
+            </Space>
 
-            android:onClick="clickDiscard"/>
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/imageButtonDiscard"
+                android:background="@drawable/ic_action_cancel"
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" >
-        </Space>
+                android:onClick="clickDiscard"/>
 
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/imageButtonSave"
-            android:background="@drawable/ic_action_save"
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" >
+            </Space>
 
-            android:onClick="clickSave"/>
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/imageButtonSave"
+                android:background="@drawable/ic_action_save"
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" >
-        </Space>
+                android:onClick="clickSave"/>
 
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" >
+            </Space>
+
+        </LinearLayout>
+
+        <it.sephiroth.android.library.widget.HListView
+            android:layout_width="match_parent"
+            android:background="#80000000"
+            android:layout_height="80dp"
+            android:id="@+id/listViewFrame"
+            android:layout_alignParentBottom="true"
+            android:divider="@android:color/transparent"
+            app:hlv_dividerWidth="10.0sp" />
     </LinearLayout>
 
-    <it.sephiroth.android.library.widget.HListView
-        android:layout_width="match_parent"
-        android:background="#80000000"
-        android:layout_height="80dp"
-        android:id="@+id/listViewFrame"
-        android:layout_alignParentBottom="true"
-        android:divider="@android:color/transparent"
-        app:hlv_dividerWidth="10.0sp"
-        android:layout_marginBottom="20dp" />
 </RelativeLayout>

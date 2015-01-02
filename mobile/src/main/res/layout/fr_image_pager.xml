@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".gallery.fragment.ImagePagerFragment">
+    tools:context=".gallery.fragment.ImagePagerFragment"
+    android:animateLayoutChanges="true">
 
     <com.amuletxheart.cameraderie.gallery.photoview.HackyViewPager xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/pager"
@@ -20,7 +21,9 @@
         android:layout_marginBottom="20dp"
         android:background="#80000000"
         android:paddingTop="5dp"
-        android:paddingBottom="5dp">
+        android:paddingBottom="5dp"
+        android:id="@+id/linearLayoutControls"
+        android:clickable="true">
 
         <Space
             android:layout_width="0dp"
