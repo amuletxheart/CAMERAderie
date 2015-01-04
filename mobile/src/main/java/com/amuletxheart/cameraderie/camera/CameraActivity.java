@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -101,9 +102,10 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         nodes.setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
             @Override
             public void onResult(NodeApi.GetConnectedNodesResult result) {
-                if(result.getNodes().size()>0) {
+                if (result.getNodes().size() > 0) {
                     mWearableNode = result.getNodes().get(0);
-                    if(D) Log.d(TAG, "Found wearable: name=" + mWearableNode.getDisplayName() + ", id=" + mWearableNode.getId());
+                    if (D)
+                        Log.d(TAG, "Found wearable: name=" + mWearableNode.getDisplayName() + ", id=" + mWearableNode.getId());
                 } else {
                     mWearableNode = null;
                 }
@@ -278,17 +280,15 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 player.start();
                 FileOutputStream outStream = null;
                 try {
-                    File imageDir = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_PICTURES), "CAMERAderie");
-
-                    String filename = String.format("/cameraderie_%d.jpg", System.currentTimeMillis());
-                    File imageFile = new File(imageDir + filename);
-
-                    outStream = new FileOutputStream(imageFile);
-                        outStream.write(data);
+                    File tempFile = File.createTempFile("image", ".jpg", getCacheDir());
+                    outStream = new FileOutputStream(tempFile);
+                    outStream.write(data);
                     outStream.close();
                     if(D) Log.d(TAG, "wrote bytes: " + data.length);
-                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
+
+                    File imageFile = saveImage(data, tempFile);
+                    tempFile.delete();
+
                     BitmapFactory.Options opts = new BitmapFactory.Options();
                     opts.inSampleSize = 4;
                     Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length, opts);
@@ -525,6 +525,44 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                         | ((g >> 2) & 0xff00) | ((b >> 10) & 0xff);
             }
         }
-        return rgb;   }
+        return rgb;
+    }
 
+    private File saveImage(byte[] rawImage, File jpgImage){
+        File imageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "CAMERAderie");
+
+        String filename = String.format("/cameraderie_%d.jpg", System.currentTimeMillis());
+        File imageFile = new File(imageDir + filename);
+
+        Bitmap originalImage = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length);
+        int width = 2560;
+        double ratio = ((double)originalImage.getWidth())/((double)width);
+        double heightD = ((double)originalImage.getHeight())/ratio;
+        int height = (int)heightD;
+
+        Bitmap resizedImage = Bitmap.createScaledBitmap(originalImage, width, height, true);
+
+        try{
+            FileOutputStream outputStream = new FileOutputStream(imageFile);
+            resizedImage.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            outputStream.close();
+
+            ExifInterface oldExif = new ExifInterface(jpgImage.getAbsolutePath());
+            String exifOrientation = oldExif.getAttribute(ExifInterface.TAG_ORIENTATION);
+
+            ExifInterface newExif = new ExifInterface(imageFile.getAbsolutePath());
+            if (exifOrientation != null) {
+                newExif.setAttribute(ExifInterface.TAG_ORIENTATION, exifOrientation);
+            }
+            newExif.saveAttributes();
+        }
+        catch(IOException e){
+            Log.e(TAG,"Cannot write to file: " + imageFile.getAbsolutePath(), e);
+        }
+
+        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
+
+        return imageFile;
+    }
 }

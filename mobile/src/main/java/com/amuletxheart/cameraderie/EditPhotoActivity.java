@@ -119,7 +119,7 @@ public class EditPhotoActivity extends ActionBarActivity {
                 .showImageOnFail(R.drawable.ic_error)
                 .resetViewBeforeLoading(true)
                 .cacheOnDisk(true)
-                .imageScaleType(ImageScaleType.EXACTLY)
+                .imageScaleType(ImageScaleType.NONE_SAFE)
                 .bitmapConfig(Bitmap.Config.ARGB_8888)
                 .considerExifParams(true)
                 .displayer(new FadeInBitmapDisplayer(300))
