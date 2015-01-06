@@ -269,8 +269,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         List<Camera.Size> sizes = params.getSupportedPictureSizes();
         Camera.Size size = sizes.get(0);
         for (int i = 0; i < sizes.size(); i++) {
-            if (sizes.get(i).width > size.width)
+            final double EPSILON = 0.001;
+            final double DESIRED_ASPECT_RATIO = 16.0/9.0;
+            double aspectRatio = (double)sizes.get(i).width / (double)sizes.get(i).height;
+
+            if(Math.abs(aspectRatio - DESIRED_ASPECT_RATIO) < EPSILON){
                 size = sizes.get(i);
+                break;
+            }
         }
         params.setPictureSize(size.width, size.height);
         mCamera.setParameters(params);
@@ -536,10 +542,27 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         File imageFile = new File(imageDir + filename);
 
         Bitmap originalImage = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length);
-        int width = 2560;
-        double ratio = ((double)originalImage.getWidth())/((double)width);
-        double heightD = ((double)originalImage.getHeight())/ratio;
-        int height = (int)heightD;
+        final int DESIRED_WIDTH = 2560;
+        final int DESIRED_HEIGHT = 1440;
+
+        int width = originalImage.getWidth();
+        int height = originalImage.getHeight();
+
+        //landscape
+        if(width >= height){
+            double ratio = ((double)width)/((double)DESIRED_WIDTH);
+            double heightD = ((double)originalImage.getHeight())/ratio;
+            width = DESIRED_WIDTH;
+            height = (int)heightD;
+        }
+        //portrait
+        else{
+            double ratio = ((double)height)/((double)DESIRED_WIDTH);
+            double widthD = ((double)originalImage.getWidth())/ratio;
+            width = (int)widthD;
+            height = DESIRED_WIDTH;
+        }
+
 
         Bitmap resizedImage = Bitmap.createScaledBitmap(originalImage, width, height, true);
 

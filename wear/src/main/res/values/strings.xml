@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Selfie@NYP-SIT</string>
+    <string name="app_name">Selfie@NYP SIT</string>
     <string name="action_switch_0">Rear camera</string>
     <string name="action_switch_1">Front camera</string>
     <string name="action_flash_0">Flash off</string>

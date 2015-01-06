@@ -137,8 +137,8 @@ public class EditPhotoActivity extends ActionBarActivity {
         image = (PhotoView)findViewById(R.id.image);
 
         //image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        /*image.setMediumScale(2.0f);
-        image.setMaximumScale(4.0f);*/
+        image.setMediumScale(2.0f);
+        image.setMaximumScale(4.0f);
 
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
 

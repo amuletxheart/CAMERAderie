@@ -203,7 +203,7 @@ public class ImagePagerFragment extends BaseFragment {
                 Log.i(TAG, "Image URI: " + imageUri.toString());
 
                 String type = "image/*";
-                String captionText = "#Selfie@NYP-SIT";
+                String captionText = "#Selfie-at-NYPSIT";
 
                 // Create the new Intent using the 'Send' action.
                 Intent share = new Intent(Intent.ACTION_SEND);
