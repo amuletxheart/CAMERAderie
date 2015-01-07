@@ -32,6 +32,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.amuletxheart.cameraderie.R;
+import com.amuletxheart.cameraderie.model.Image;
+import com.amuletxheart.cameraderie.model.ImageUtil;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -56,27 +58,14 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
     //Test images
 	//String[] imageUrls = Constants.IMAGES;
 
-    private String[] imageUrls = loadImagesFromStorage();
+    private String[] imageUrls = loadImage();
 
 	DisplayImageOptions options;
 
-    private String[] loadImagesFromStorage(){
-        File imageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "CAMERAderie");
+    private String[] loadImage(){
+        Image image = ImageUtil.loadFromStorage(ImageUtil.StorageLocation.CAMERADERIE);
 
-        File[] imageFiles = imageDir.listFiles();
-
-        List<String> imageURIList = new ArrayList<String>();
-        String[] imageURIArray;
-
-        for(File image : imageFiles){
-            imageURIList.add("file://" + image.getAbsolutePath());
-        }
-        Collections.sort(imageURIList);
-        Collections.reverse(imageURIList);
-        imageURIArray = imageURIList.toArray(new String[imageURIList.size()]);
-
-        return imageURIArray;
+        return image.imageUrisToArray();
     }
 
 	@Override
