@@ -3,6 +3,8 @@ package com.amuletxheart.cameraderie.model;
 import android.os.Environment;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.HiddenFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,9 +22,9 @@ public class ImageUtil {
 
         if(location == StorageLocation.DCIM){
             File imageDir = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DCIM), location.toString());
+                    Environment.DIRECTORY_DCIM), "");
 
-            Collection<File> imageFiles = FileUtils.listFiles(imageDir, null, true);
+            Collection<File> imageFiles = FileUtils.listFiles(imageDir, HiddenFileFilter.VISIBLE, HiddenFileFilter.VISIBLE);
 
             List<String> imageURIList = new ArrayList<String>();
 
@@ -34,17 +36,17 @@ public class ImageUtil {
         }
         else if(location == StorageLocation.CAMERADERIE){
             File imageDir = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_PICTURES), location.toString());
+                Environment.DIRECTORY_PICTURES), location.toString());
 
-            File[] imageFiles = imageDir.listFiles();
-            List<String> imageURIList = new ArrayList<String>();
+        File[] imageFiles = imageDir.listFiles();
+        List<String> imageURIList = new ArrayList<String>();
 
-            for(File imageFile : imageFiles){
-                imageURIList.add("file://" + imageFile.getAbsolutePath());
-            }
-
-            image.setImageUris(imageURIList);
+        for(File imageFile : imageFiles){
+            imageURIList.add("file://" + imageFile.getAbsolutePath());
         }
+
+        image.setImageUris(imageURIList);
+    }
 
         return image;
     }

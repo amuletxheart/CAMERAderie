@@ -42,6 +42,7 @@ import com.amuletxheart.cameraderie.EditPhotoActivity;
 import com.amuletxheart.cameraderie.R;
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
+import com.amuletxheart.cameraderie.gallery.activity.TabbedImageActivity;
 import com.amuletxheart.cameraderie.gallery.photoview.HackyViewPager;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -285,8 +286,7 @@ public class ImagePagerFragment extends BaseFragment {
 
         }
         else{
-            Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
-            intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGridFragment.INDEX);
+            Intent intent = new Intent(getActivity(), TabbedImageActivity.class);
             startActivity(intent);
         }
     }

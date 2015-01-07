@@ -21,10 +21,10 @@
     <string name="button_image_pager">ViewPager</string>
     <string name="button_image_gallery">Gallery</string>
     <string name="button_list_and_grid">ViewPager (ListView + GridView)</string>
-
     <string name="title_list">List</string>
     <string name="title_grid">Grid</string>
-
+    <string name="title_cameraderie">This app</string>
+    <string name="title_dcim">Camera</string>
     <string name="menu_item_clear_memory_cache">Clear memory cache</string>
     <string name="menu_item_clear_disc_cache">Clear disc cache</string>
     <string name="menu_item_pause_on_scroll">Pause on scroll</string>
@@ -38,4 +38,9 @@
     <string name="delete_dialog_title">Delete confirmation</string>
     <string name="delete_dialog_positive">OK</string>
     <string name="delete_dialog_negative">Cancel</string>
+    <string name="title_activity_tabbed_image">TabbedImageActivity</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
 </resources>

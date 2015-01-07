@@ -32,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.amuletxheart.cameraderie.R;
+import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.model.Image;
 import com.amuletxheart.cameraderie.model.ImageUtil;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -52,6 +53,7 @@ import java.util.List;
  */
 public class ImageGridFragment extends AbsListViewBaseFragment {
     private static final String TAG = ImageGridFragment.class.toString();
+    private ImageUtil.StorageLocation storageLocation;
 
 	public static final int INDEX = 1;
 
@@ -82,6 +84,10 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
                 .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
 				.bitmapConfig(Bitmap.Config.RGB_565)
 				.build();
+
+        storageLocation = (ImageUtil.StorageLocation)getArguments().getSerializable(Constants.Extra.IMAGE_SOURCE);
+        Image image = ImageUtil.loadFromStorage(storageLocation);
+        imageUrls = image.imageUrisToArray();
     }
 
 	@Override

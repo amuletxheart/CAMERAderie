@@ -176,5 +176,6 @@ public final class Constants {
         public static final String IMAGE_URIS = "com.amuletxheart.cameraderie.IMAGE_URIS";
         public static final String IMAGE_URI = "com.amuletxheart.cameraderie.IMAGE_URI";
         public static final String CAMERA_PREVIEW = "com.amuletxheart.cameraderie.CAMERA_PREVIEW";
+        public static final String IMAGE_SOURCE = "com.amuletxheart.cameraderie.IMAGE_SOURCE";
 	}
 }
