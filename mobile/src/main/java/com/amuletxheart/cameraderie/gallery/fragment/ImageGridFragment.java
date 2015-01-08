@@ -52,7 +52,7 @@ import java.util.List;
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
 public class ImageGridFragment extends AbsListViewBaseFragment {
-    private static final String TAG = ImageGridFragment.class.toString();
+    private static final String TAG = ImageGridFragment.class.getName();
     private ImageUtil.StorageLocation storageLocation;
 
 	public static final int INDEX = 1;

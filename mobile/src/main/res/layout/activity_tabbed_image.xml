@@ -13,9 +13,4 @@
         android:paddingBottom="15dp"
         android:background="#ff34b5e5"/>
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="20dp">
-    </Space>
-
 </android.support.v4.view.ViewPager>

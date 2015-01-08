@@ -23,8 +23,8 @@
     <string name="button_list_and_grid">ViewPager (ListView + GridView)</string>
     <string name="title_list">List</string>
     <string name="title_grid">Grid</string>
-    <string name="title_cameraderie">This app</string>
-    <string name="title_dcim">Camera</string>
+    <string name="title_cameraderie">THIS APP</string>
+    <string name="title_dcim">CAMERA</string>
     <string name="menu_item_clear_memory_cache">Clear memory cache</string>
     <string name="menu_item_clear_disc_cache">Clear disc cache</string>
     <string name="menu_item_pause_on_scroll">Pause on scroll</string>

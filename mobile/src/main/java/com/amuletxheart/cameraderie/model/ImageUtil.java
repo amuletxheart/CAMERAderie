@@ -1,6 +1,13 @@
 package com.amuletxheart.cameraderie.model;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
@@ -16,6 +23,7 @@ import java.util.List;
  * Created by Yong Xin Shen on 1/7/2015.
  */
 public class ImageUtil {
+    private static final String TAG = ImageUtil.class.getName();
 
     public static Image loadFromStorage(StorageLocation location){
         Image image = new Image();
@@ -49,6 +57,36 @@ public class ImageUtil {
     }
 
         return image;
+    }
+
+    public static Uri getContentUri(Context context, File imageFile) {
+        Uri contentUri = null;
+
+        //Delete from MediaStore, adapted from http://stackoverflow.com/a/20780472/1966873
+        // Set up the projection (we only need the ID)
+        String[] projection = { MediaStore.Images.Media._ID };
+
+        // Match on the file path
+        String selection = MediaStore.Images.Media.DATA + " = ?";
+        String[] selectionArgs = new String[] { imageFile.getAbsolutePath() };
+
+        // Query for the ID of the media matching the file path
+        Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        ContentResolver contentResolver = context.getContentResolver();
+        Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+        if (c.moveToFirst()) {
+            // We found the ID. Deleting the item via the content provider will also remove the file
+            long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+            contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+
+            Log.i(TAG, "Image found " + contentUri);
+        } else {
+            // File not found in media store DB
+            Log.i(TAG, imageFile.getAbsolutePath() + " not found in MediaStore");
+        }
+        c.close();
+
+        return contentUri;
     }
 
     public enum StorageLocation{

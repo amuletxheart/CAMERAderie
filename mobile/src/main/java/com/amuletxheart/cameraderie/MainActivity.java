@@ -20,7 +20,7 @@ import java.io.File;
 
 
 public class MainActivity extends ActionBarActivity {
-    private static final String TAG = MainActivity.class.toString();
+    private static final String TAG = MainActivity.class.getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
