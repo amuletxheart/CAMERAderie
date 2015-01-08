@@ -60,15 +60,9 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
     //Test images
 	//String[] imageUrls = Constants.IMAGES;
 
-    private String[] imageUrls = loadImage();
+    private String[] imageUrls;
 
 	DisplayImageOptions options;
-
-    private String[] loadImage(){
-        Image image = ImageUtil.loadFromStorage(ImageUtil.StorageLocation.CAMERADERIE);
-
-        return image.imageUrisToArray();
-    }
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -86,7 +80,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 				.build();
 
         storageLocation = (ImageUtil.StorageLocation)getArguments().getSerializable(Constants.Extra.IMAGE_SOURCE);
-        Image image = ImageUtil.loadFromStorage(storageLocation);
+        Image image = ImageUtil.loadFromStorage(getActivity(), storageLocation);
         imageUrls = image.imageUrisToArray();
     }
 
