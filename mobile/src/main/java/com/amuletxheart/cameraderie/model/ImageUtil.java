@@ -49,11 +49,15 @@ public class ImageUtil {
 
         File[] imageFiles = imageDir.listFiles();
 
-        getContentUris(context, new ArrayList<File>(Arrays.asList(imageFiles)));
+        List<Uri> contentUris = getContentUris(context, new ArrayList<File>(Arrays.asList(imageFiles)));
         List<String> imageURIList = new ArrayList<String>();
 
-        for(File imageFile : imageFiles){
+        /*for(File imageFile : imageFiles){
             imageURIList.add("file://" + imageFile.getAbsolutePath());
+        }*/
+
+        for(Uri uri : contentUris){
+            imageURIList.add(uri.toString());
         }
 
         image.setImageUris(imageURIList);

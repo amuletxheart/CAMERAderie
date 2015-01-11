@@ -8,9 +8,11 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.ExifInterface;
 import android.media.MediaPlayer;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +27,7 @@ import com.amuletxheart.cameraderie.R;
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
 import com.amuletxheart.cameraderie.gallery.fragment.ImagePagerFragment;
+import com.amuletxheart.cameraderie.model.ImageUtil;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -292,7 +295,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     outStream.close();
                     if(D) Log.d(TAG, "wrote bytes: " + data.length);
 
-                    File imageFile = saveImage(data, tempFile);
+                    File imageUri = saveImage(data, tempFile);
                     tempFile.delete();
 
                     BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -323,7 +326,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     sendToWearable("result", baos.toByteArray(), null);
                     mCamera.startPreview();
 
-                    startImagePagerActivity(imageFile.getPath());
+                    startImagePagerActivity(imageUri.getAbsolutePath());
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -335,8 +338,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         safeToTakePicture = true;
     }
 
-    private void startImagePagerActivity(String filename){
-        String[] imageUris = {"file://" + filename};
+    private void startImagePagerActivity(String imageUri){
+        String[] imageUris = {imageUri};
 
         Intent intent = new Intent(this, SimpleImageActivity.class);
         intent.putExtra(Constants.Extra.CAMERA_PREVIEW, true);
@@ -535,6 +538,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     private File saveImage(byte[] rawImage, File jpgImage){
+        final UriWrapper uriWrapper = new UriWrapper();
+
         File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "CAMERAderie");
 
@@ -579,6 +584,20 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 newExif.setAttribute(ExifInterface.TAG_ORIENTATION, exifOrientation);
             }
             newExif.saveAttributes();
+
+            MediaScannerConnection.scanFile(
+                    this,
+                    new String[] {imageFile.getAbsolutePath()},
+                    null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        @Override
+                        public void onScanCompleted(String path, Uri uri) {
+                            uriWrapper.uri = uri;
+                            Log.i(TAG, "Finished scanning: " + uri);
+                        }
+            });
+
+            //imageUri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), imageFile.getAbsolutePath(), null, null));
         }
         catch(IOException e){
             Log.e(TAG,"Cannot write to file: " + imageFile.getAbsolutePath(), e);
@@ -587,5 +606,9 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
 
         return imageFile;
+    }
+
+    private class UriWrapper{
+        public Uri uri;
     }
 }

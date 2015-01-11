@@ -108,9 +108,8 @@ public class ImagePagerFragment extends BaseFragment {
 
                         MemoryCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getMemoryCache());
                         DiskCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getDiskCache());
-
-                        Uri deleteUri = ImageUtil.getContentUri(getActivity(), imageFile);
-                        int success = getActivity().getContentResolver().delete(deleteUri, null, null);
+;
+                        int success = getActivity().getContentResolver().delete(imageUri, null, null);
 
                         imageUriList.remove(imageIndex);
 
