@@ -10,6 +10,7 @@ import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -47,9 +48,12 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
 
 
 public class CameraActivity extends Activity implements SurfaceHolder.Callback {
+    private CameraActivity cameraActivity = this;
 
     private static final String TAG = "WearCamera";
     private static final boolean D = true;
@@ -295,7 +299,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     outStream.close();
                     if(D) Log.d(TAG, "wrote bytes: " + data.length);
 
-                    File imageUri = saveImage(data, tempFile);
+                    File imageFile = saveImage(data, tempFile);
                     tempFile.delete();
 
                     BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -326,7 +330,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     sendToWearable("result", baos.toByteArray(), null);
                     mCamera.startPreview();
 
-                    startImagePagerActivity(imageUri.getAbsolutePath());
+                    startImagePagerActivity(imageFile);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -338,15 +342,26 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         safeToTakePicture = true;
     }
 
-    private void startImagePagerActivity(String imageUri){
-        String[] imageUris = {imageUri};
+    private void startImagePagerActivity(File imageFile){
+        MediaScannerConnection.scanFile(
+                cameraActivity,
+                new String[] {imageFile.getAbsolutePath()},
+                null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.i(TAG, "Finished scanning: " + uri);
+                        String[] imageUris = {uri.toString()};
 
-        Intent intent = new Intent(this, SimpleImageActivity.class);
-        intent.putExtra(Constants.Extra.CAMERA_PREVIEW, true);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
-        intent.putExtra(Constants.Extra.IMAGE_POSITION, 0);
-        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
-        startActivity(intent);
+                        Intent intent = new Intent(cameraActivity, SimpleImageActivity.class);
+                        intent.putExtra(Constants.Extra.CAMERA_PREVIEW, true);
+                        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+                        intent.putExtra(Constants.Extra.IMAGE_POSITION, 0);
+                        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
+                        startActivity(intent);
+                    }
+                }
+        );
     }
 
     public void clickSwitchCamera(View v){
@@ -538,8 +553,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     private File saveImage(byte[] rawImage, File jpgImage){
-        final UriWrapper uriWrapper = new UriWrapper();
-
         File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "CAMERAderie");
 
@@ -585,30 +598,12 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             }
             newExif.saveAttributes();
 
-            MediaScannerConnection.scanFile(
-                    this,
-                    new String[] {imageFile.getAbsolutePath()},
-                    null,
-                    new MediaScannerConnection.OnScanCompletedListener() {
-                        @Override
-                        public void onScanCompleted(String path, Uri uri) {
-                            uriWrapper.uri = uri;
-                            Log.i(TAG, "Finished scanning: " + uri);
-                        }
-            });
 
-            //imageUri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), imageFile.getAbsolutePath(), null, null));
         }
         catch(IOException e){
             Log.e(TAG,"Cannot write to file: " + imageFile.getAbsolutePath(), e);
         }
 
-        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
-
         return imageFile;
-    }
-
-    private class UriWrapper{
-        public Uri uri;
     }
 }

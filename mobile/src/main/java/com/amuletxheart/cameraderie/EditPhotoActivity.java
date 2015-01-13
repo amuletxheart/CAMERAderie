@@ -143,7 +143,7 @@ public class EditPhotoActivity extends ActionBarActivity {
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
         ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.displayImage("file://" + imageUri.getPath(), image, options);
+        imageLoader.displayImage(imageUri.getPath(), image, options);
     }
 
     public void clickShowControls(){

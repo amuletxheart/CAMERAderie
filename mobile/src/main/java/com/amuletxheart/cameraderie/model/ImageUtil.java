@@ -33,12 +33,24 @@ public class ImageUtil {
             File imageDir = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DCIM), "");
 
-            Collection<File> imageFiles = FileUtils.listFiles(imageDir, HiddenFileFilter.VISIBLE, HiddenFileFilter.VISIBLE);
+            Collection<File> imageFilesCollection = FileUtils.listFiles(imageDir, HiddenFileFilter.VISIBLE, HiddenFileFilter.VISIBLE);
 
-            List<String> imageURIList = new ArrayList<String>();
+            List<File> imageFiles;
+            if (imageFilesCollection instanceof List) {
+                imageFiles = (List<File>) imageFilesCollection;
+            }
+            else {
+                imageFiles = new ArrayList(imageFilesCollection);
+            }
 
-            for(File imageFile : imageFiles){
-                imageURIList.add("file://" + imageFile.getAbsolutePath());
+            List<Uri> contentUris = getContentUris(context, imageFiles);
+            List<ImageWithThumbnail> imageURIList = new ArrayList<ImageWithThumbnail>();
+
+            for(Uri uri : contentUris){
+                ImageWithThumbnail imageWithThumbnail = new ImageWithThumbnail();
+                imageWithThumbnail.setImageUri(uri);
+
+                imageURIList.add(imageWithThumbnail);
             }
 
             image.setImageUris(imageURIList);
@@ -50,14 +62,13 @@ public class ImageUtil {
         File[] imageFiles = imageDir.listFiles();
 
         List<Uri> contentUris = getContentUris(context, new ArrayList<File>(Arrays.asList(imageFiles)));
-        List<String> imageURIList = new ArrayList<String>();
-
-        /*for(File imageFile : imageFiles){
-            imageURIList.add("file://" + imageFile.getAbsolutePath());
-        }*/
+        List<ImageWithThumbnail> imageURIList = new ArrayList<ImageWithThumbnail>();
 
         for(Uri uri : contentUris){
-            imageURIList.add(uri.toString());
+            ImageWithThumbnail imageWithThumbnail = new ImageWithThumbnail();
+            imageWithThumbnail.setImageUri(uri);
+
+            imageURIList.add(imageWithThumbnail);
         }
 
         image.setImageUris(imageURIList);
