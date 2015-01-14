@@ -17,7 +17,6 @@ package com.amuletxheart.cameraderie.gallery.fragment;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,12 +40,6 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
@@ -80,8 +73,8 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 				.build();
 
         storageLocation = (ImageUtil.StorageLocation)getArguments().getSerializable(Constants.Extra.IMAGE_SOURCE);
-        Image image = ImageUtil.loadFromStorage(getActivity(), storageLocation);
-        imageUrls = image.imageUrisToArray();
+        Image image = ImageUtil.loadFromStorage(getActivity(), ImageUtil.StorageLocation.CAMERADERIE);
+        imageUrls = ImageUtil.UriListToStringArray(image.getThumbnailUris());
     }
 
 	@Override

@@ -3,7 +3,6 @@ package com.amuletxheart.cameraderie.model;
 import android.net.Uri;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,14 +10,14 @@ import java.util.List;
  * Created by Yong Xin Shen on 1/7/2015.
  */
 public class Image {
-    private List<ImageWithThumbnail> imageUris;
+    private List<ImageWithThumbnail> imageWithThumbnails;
 
-    public List<ImageWithThumbnail> getImageUris() {
-        return imageUris;
+    public List<ImageWithThumbnail> getImageWithThumbnails() {
+        return imageWithThumbnails;
     }
 
-    public void setImageUris(List<ImageWithThumbnail> imageUris) {
-        this.imageUris = imageUris;
+    public void setImageWithThumbnails(List<ImageWithThumbnail> imageWithThumbnails) {
+        this.imageWithThumbnails = imageWithThumbnails;
         organize();
     }
 
@@ -29,20 +28,28 @@ public class Image {
             imageWithThumbnail.setImageUri(Uri.parse(imageUri));
             imageUriList.add(imageWithThumbnail);
         }
-        setImageUris(imageUriList);
+        setImageWithThumbnails(imageUriList);
     }
 
-    public String[] imageUrisToArray(){
-        String [] imageUriArray = new String[imageUris.size()];
-        for(int i = 0; i<imageUris.size(); i++){
-            imageUriArray[i] = imageUris.get(i).getImageUri().toString();
+    public List<Uri> getImageUris(){
+        List<Uri> imageUris = new ArrayList<Uri>();
+        for(ImageWithThumbnail imageWithThumbnail : imageWithThumbnails){
+            imageUris.add(imageWithThumbnail.getImageUri());
         }
 
-        return imageUriArray;
+        return imageUris;
+    }
+
+    public List<Uri> getThumbnailUris(){
+        List<Uri> thumbnailUris = new ArrayList<Uri>();
+        for(ImageWithThumbnail imageWithThumbnail : imageWithThumbnails){
+            thumbnailUris.add(imageWithThumbnail.getThumbnailUri());
+        }
+        return thumbnailUris;
     }
 
     private void organize(){
-        Collections.sort(imageUris);
-        Collections.reverse(imageUris);
+        Collections.sort(imageWithThumbnails);
+        Collections.reverse(imageWithThumbnails);
     }
 }
