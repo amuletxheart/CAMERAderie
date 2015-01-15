@@ -16,16 +16,12 @@
 package com.amuletxheart.cameraderie.gallery.fragment;
 
 import android.app.AlertDialog;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -44,7 +40,9 @@ import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
 import com.amuletxheart.cameraderie.gallery.activity.TabbedImageActivity;
 import com.amuletxheart.cameraderie.gallery.photoview.HackyViewPager;
+import com.amuletxheart.cameraderie.model.ImageContainer;
 import com.amuletxheart.cameraderie.model.ImageUtil;
+import com.amuletxheart.cameraderie.model.ImageWithThumbnail;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -54,7 +52,6 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,6 +67,7 @@ public class ImagePagerFragment extends BaseFragment {
 
 	public static final int INDEX = 2;
 
+    private ImageContainer imageContainer;
     private ViewPager imagePager;
 	private String[] imageUrls;
     private boolean cameraPreview;
@@ -97,21 +95,17 @@ public class ImagePagerFragment extends BaseFragment {
                         int imageIndex = imagePager.getCurrentItem();
                         Log.i(TAG, "Deleting image index " + imageIndex);
 
-                        //Convert array to List for easier manipulation
-                        List<String> imageUriList = new ArrayList<String>(Arrays.asList(imageUrls));
+                        ImageWithThumbnail imageWithThumbnail = imageContainer.getImagesWithThumbnails().get(imageIndex);
 
-                        String imageURIString = imageUriList.get(imageIndex);
+                        String imageURIString = imageWithThumbnail.getImageUri().toString();
                         Log.i(TAG, "Deleting image URI " + imageURIString);
-
-                        Uri imageUri = Uri.parse(imageURIString);
-                        File imageFile = new File(imageUri.getPath());
 
                         MemoryCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getMemoryCache());
                         DiskCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getDiskCache());
 ;
-                        int success = getActivity().getContentResolver().delete(imageUri, null, null);
+                        int success = getActivity().getContentResolver().delete(imageWithThumbnail.getImageUri(), null, null);
 
-                        imageUriList.remove(imageIndex);
+                        imageContainer.getImagesWithThumbnails().remove(imageIndex);
 
                         getActivity().finish();
 
@@ -120,15 +114,14 @@ public class ImagePagerFragment extends BaseFragment {
                             onBackPressed();
                         }
                         else{
-                            if(imageUriList.isEmpty()){
+                            if(imageContainer.getImagesWithThumbnails().isEmpty()){
                                 onBackPressed();
                             }
                             else{
-                                String[] imageUris = imageUriList.toArray(new String[imageUriList.size()]);
                                 Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
                                 intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
                                 intent.putExtra(Constants.Extra.IMAGE_POSITION, imageIndex);
-                                intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
+                                intent.putExtra(Constants.Extra.IMAGE_CONTAINER, imageContainer);
                                 startActivity(intent);
                             }
                         }
@@ -158,11 +151,11 @@ public class ImagePagerFragment extends BaseFragment {
                 String imageURIString = imageUrls[imageIndex];
 
                 Uri imageUri = Uri.parse(imageURIString);
-                Log.i(TAG, "Image URI: " + imageUri.toString());
+                Log.i(TAG, "ImageContainer URI: " + imageUri.toString());
 
                 Intent intent = new Intent(getActivity(), EditPhotoActivity.class);
                 intent.putExtra(Constants.Extra.CAMERA_PREVIEW, cameraPreview);
-                intent.putExtra(Constants.Extra.IMAGE_URIS, imageUrls);
+                intent.putExtra(Constants.Extra.IMAGE_CONTAINER, imageContainer);
                 intent.putExtra(Constants.Extra.IMAGE_POSITION, imageIndex);
                 startActivity(intent);
             }
@@ -179,7 +172,7 @@ public class ImagePagerFragment extends BaseFragment {
                 String imageURIString = imageUrls[imageIndex];
 
                 Uri imageUri = Uri.parse(imageURIString);
-                Log.i(TAG, "Image URI: " + imageUri.toString());
+                Log.i(TAG, "ImageContainer URI: " + imageUri.toString());
 
                 String type = "image/*";
                 String captionText = "#Selfie-at-NYPSIT";
@@ -234,7 +227,8 @@ public class ImagePagerFragment extends BaseFragment {
 				.displayer(new FadeInBitmapDisplayer(300))
 				.build();
 
-        imageUrls = getArguments().getStringArray(Constants.Extra.IMAGE_URIS);
+        imageContainer = getArguments().getParcelable(Constants.Extra.IMAGE_CONTAINER);
+        imageUrls = ImageUtil.uriListToStringArray(imageContainer.getImageUris());
         cameraPreview = getArguments().getBoolean(Constants.Extra.CAMERA_PREVIEW);
 	}
 
@@ -326,7 +320,7 @@ public class ImagePagerFragment extends BaseFragment {
 							message = "Input/Output error";
 							break;
 						case DECODING_ERROR:
-							message = "Image can't be decoded";
+							message = "ImageContainer can't be decoded";
 							break;
 						case NETWORK_DENIED:
 							message = "Downloads are denied";

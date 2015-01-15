@@ -19,6 +19,8 @@ import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AbsListView;
+
+import com.amuletxheart.cameraderie.model.ImageContainer;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.amuletxheart.cameraderie.gallery.Constants;
@@ -73,11 +75,11 @@ public abstract class AbsListViewBaseFragment extends BaseFragment {
 		}
 	}
 
-	protected void startImagePagerActivity(String[] imageUris, int position) {
+	protected void startImagePagerActivity(ImageContainer imageContainer, int position) {
 		Intent intent = new Intent(getActivity(), SimpleImageActivity.class);
 		intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
 		intent.putExtra(Constants.Extra.IMAGE_POSITION, position);
-        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
+        intent.putExtra(Constants.Extra.IMAGE_CONTAINER, imageContainer);
 		startActivity(intent);
 	}
 

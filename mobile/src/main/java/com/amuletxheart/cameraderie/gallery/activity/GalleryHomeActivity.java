@@ -42,7 +42,7 @@ import java.io.InputStream;
  */
 public class GalleryHomeActivity extends Activity {
 
-	private static final String TEST_FILE_NAME = "Universal Image Loader @#&=+-_.,!()~'%20.png";
+	private static final String TEST_FILE_NAME = "Universal ImageContainer Loader @#&=+-_.,!()~'%20.png";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

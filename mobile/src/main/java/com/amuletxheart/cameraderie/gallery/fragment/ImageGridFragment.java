@@ -32,7 +32,7 @@ import android.widget.ProgressBar;
 
 import com.amuletxheart.cameraderie.R;
 import com.amuletxheart.cameraderie.gallery.Constants;
-import com.amuletxheart.cameraderie.model.Image;
+import com.amuletxheart.cameraderie.model.ImageContainer;
 import com.amuletxheart.cameraderie.model.ImageUtil;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -53,6 +53,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
     //Test images
 	//String[] imageUrls = Constants.IMAGES;
 
+    private ImageContainer imageContainer;
     private String[] imageUrls;
 
 	DisplayImageOptions options;
@@ -73,8 +74,8 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 				.build();
 
         storageLocation = (ImageUtil.StorageLocation)getArguments().getSerializable(Constants.Extra.IMAGE_SOURCE);
-        Image image = ImageUtil.loadFromStorage(getActivity(), ImageUtil.StorageLocation.CAMERADERIE);
-        imageUrls = ImageUtil.UriListToStringArray(image.getThumbnailUris());
+        imageContainer = ImageUtil.loadFromStorage(getActivity(), ImageUtil.StorageLocation.CAMERADERIE);
+        imageUrls = ImageUtil.uriListToStringArray(imageContainer.getThumbnailUris());
     }
 
 	@Override
@@ -86,7 +87,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 getActivity().finish();
-				startImagePagerActivity(imageUrls, position);
+				startImagePagerActivity(imageContainer, position);
 			}
 		});
 		return rootView;

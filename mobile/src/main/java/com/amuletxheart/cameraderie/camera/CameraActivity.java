@@ -10,10 +10,8 @@ import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,7 +26,9 @@ import com.amuletxheart.cameraderie.R;
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
 import com.amuletxheart.cameraderie.gallery.fragment.ImagePagerFragment;
+import com.amuletxheart.cameraderie.model.ImageContainer;
 import com.amuletxheart.cameraderie.model.ImageUtil;
+import com.amuletxheart.cameraderie.model.ImageWithThumbnail;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -48,8 +48,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
 
 
 public class CameraActivity extends Activity implements SurfaceHolder.Callback {
@@ -351,13 +349,18 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     @Override
                     public void onScanCompleted(String path, Uri uri) {
                         Log.i(TAG, "Finished scanning: " + uri);
-                        String[] imageUris = {uri.toString()};
+
+                        ImageWithThumbnail imageWithThumbnail = new ImageWithThumbnail();
+                        imageWithThumbnail.setImageUri(uri);
+                        imageWithThumbnail.setThumbnailUri(ImageUtil.getThumbnail(cameraActivity, uri));
+                        ImageContainer imageContainer = new ImageContainer();
+                        imageContainer.setImageWithThumbnail(imageWithThumbnail);
 
                         Intent intent = new Intent(cameraActivity, SimpleImageActivity.class);
                         intent.putExtra(Constants.Extra.CAMERA_PREVIEW, true);
                         intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
                         intent.putExtra(Constants.Extra.IMAGE_POSITION, 0);
-                        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
+                        intent.putExtra(Constants.Extra.IMAGE_CONTAINER, imageContainer);
                         startActivity(intent);
                     }
                 }

@@ -24,8 +24,8 @@ import java.util.List;
 public class ImageUtil {
     private static final String TAG = ImageUtil.class.getName();
 
-    public static Image loadFromStorage(Context context, StorageLocation location){
-        Image image = new Image();
+    public static ImageContainer loadFromStorage(Context context, StorageLocation location){
+        ImageContainer imageContainer = new ImageContainer();
 
         if(location == StorageLocation.DCIM){
             File imageDir = new File(Environment.getExternalStoragePublicDirectory(
@@ -51,7 +51,7 @@ public class ImageUtil {
                 imageURIList.add(imageWithThumbnail);
             }
 
-            image.setImageWithThumbnails(imageURIList);
+            imageContainer.setImagesWithThumbnails(imageURIList);
         }
         else if(location == StorageLocation.CAMERADERIE){
             File imageDir = new File(Environment.getExternalStoragePublicDirectory(
@@ -63,18 +63,18 @@ public class ImageUtil {
             List<Uri> thumbnailUris = getThumbnails(context, contentUris);
             List<ImageWithThumbnail> imageURIList = new ArrayList<ImageWithThumbnail>();
 
-            for(Uri uri : thumbnailUris){
+            for(int i = 0; i<contentUris.size(); i++){
                 ImageWithThumbnail imageWithThumbnail = new ImageWithThumbnail();
-                imageWithThumbnail.setImageUri(uri);
-                imageWithThumbnail.setThumbnailUri(uri);
+                imageWithThumbnail.setImageUri(contentUris.get(i));
+                imageWithThumbnail.setThumbnailUri(thumbnailUris.get(i));
 
                 imageURIList.add(imageWithThumbnail);
             }
 
-            image.setImageWithThumbnails(imageURIList);
+            imageContainer.setImagesWithThumbnails(imageURIList);
         }
 
-        return image;
+        return imageContainer;
     }
 
     public static Uri getContentUri(Context context, File imageFile) {
@@ -86,95 +86,113 @@ public class ImageUtil {
 
     public static List<Uri> getContentUris(Context context, List<File> imageFiles){
         List<Uri> contentUris = new ArrayList<Uri>();
-        List<String> imageFilePaths = new ArrayList<String>();
-        for(File imageFile : imageFiles){
-            imageFilePaths.add(imageFile.getAbsolutePath());
+
+        if(imageFiles.isEmpty()){
+            //do nothing
         }
-
-        //Delete from MediaStore, adapted from http://stackoverflow.com/a/20780472/1966873
-        // Set up the projection (we only need the ID)
-        String[] projection = { MediaStore.Images.Media._ID };
-
-        // Match on the file path
-        String selection = "";
-        for(int i=0; i<imageFilePaths.size(); i++){
-            //last element in List
-            if(i == imageFilePaths.size()-1){
-                selection += MediaStore.Images.Media.DATA + " = ?";
+        else{
+            List<String> imageFilePaths = new ArrayList<String>();
+            for(File imageFile : imageFiles){
+                imageFilePaths.add(imageFile.getAbsolutePath());
             }
-            else{
-                selection += MediaStore.Images.Media.DATA + " = ? OR ";
+
+            //Delete from MediaStore, adapted from http://stackoverflow.com/a/20780472/1966873
+            // Set up the projection (we only need the ID)
+            String[] projection = { MediaStore.Images.Media._ID };
+
+            // Match on the file path
+            String selection = "";
+            for(int i=0; i<imageFilePaths.size(); i++){
+                //last element in List
+                if(i == imageFilePaths.size()-1){
+                    selection += MediaStore.Images.Media.DATA + " = ?";
+                }
+                else{
+                    selection += MediaStore.Images.Media.DATA + " = ? OR ";
+                }
             }
+
+            String[] selectionArgs = imageFilePaths.toArray(new String[imageFilePaths.size()]);
+
+            // Query for the ID of the media matching the file path
+            Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            ContentResolver contentResolver = context.getContentResolver();
+            Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+
+            while(c.moveToNext()){
+                long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                Uri contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                Log.i(TAG, "ImageContainer found " + contentUri);
+
+                contentUris.add(contentUri);
+            }
+
+            c.close();
         }
-
-        String[] selectionArgs = imageFilePaths.toArray(new String[imageFilePaths.size()]);
-
-        // Query for the ID of the media matching the file path
-        Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        ContentResolver contentResolver = context.getContentResolver();
-        Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
-
-        while(c.moveToNext()){
-            long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-            Uri contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-            Log.i(TAG, "Image found " + contentUri);
-
-            contentUris.add(contentUri);
-        }
-
-        c.close();
-
+        
         return contentUris;
     }
 
-    public static List<Uri> getThumbnails(Context context, List<Uri> imageUris){
-        for(Uri imageUri : imageUris){
-            MediaStore.Images.Thumbnails.getThumbnail(
-                    context.getContentResolver(),
-                    Long.parseLong(imageUri.getLastPathSegment()),
-                    MediaStore.Images.Thumbnails.MINI_KIND,
-                    null
-            );
-        }
+    public static Uri getThumbnail(Context context, Uri imageUri){
+        List<Uri> imageUris = new ArrayList<Uri>();
+        imageUris.add(imageUri);
 
+        return getThumbnails(context, imageUris).get(0);
+    }
+
+    public static List<Uri> getThumbnails(Context context, List<Uri> imageUris){
         List<Uri> thumbnailUris= new ArrayList<Uri>();
 
-        Uri queryUri = MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI;
-
-        String[] projection = {MediaStore.Images.Thumbnails._ID};
-
-        String selection = MediaStore.Images.Thumbnails.KIND + " = " + MediaStore.Images.Thumbnails.MINI_KIND + " AND ";
-        for(int i=0; i<imageUris.size(); i++){
-            //last element in List
-            if(i == imageUris.size()-1){
-                selection += MediaStore.Images.Thumbnails.IMAGE_ID + " = ?";
+        if(imageUris.isEmpty()){
+            //do nothing
+        }
+        else{
+            for(Uri imageUri : imageUris){
+                MediaStore.Images.Thumbnails.getThumbnail(
+                        context.getContentResolver(),
+                        Long.parseLong(imageUri.getLastPathSegment()),
+                        MediaStore.Images.Thumbnails.MINI_KIND,
+                        null
+                );
             }
-            else{
-                selection += MediaStore.Images.Thumbnails.IMAGE_ID + " = ? OR ";
+
+            Uri queryUri = MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI;
+
+            String[] projection = {MediaStore.Images.Thumbnails._ID};
+
+            String selection = MediaStore.Images.Thumbnails.KIND + " = " + MediaStore.Images.Thumbnails.MINI_KIND + " AND ";
+            for(int i=0; i<imageUris.size(); i++){
+                //last element in List
+                if(i == imageUris.size()-1){
+                    selection += MediaStore.Images.Thumbnails.IMAGE_ID + " = ?";
+                }
+                else{
+                    selection += MediaStore.Images.Thumbnails.IMAGE_ID + " = ? OR ";
+                }
             }
+
+            String[] selectionArgs = new String[imageUris.size()];
+            for(int i = 0; i<imageUris.size(); i++){
+                selectionArgs[i] = imageUris.get(i).getLastPathSegment();
+            }
+
+            ContentResolver contentResolver = context.getContentResolver();
+            Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+
+            while(c.moveToNext()){
+                int thumbnailID = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID));
+
+                Uri thumbnailUri = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, Integer.toString(thumbnailID));
+                thumbnailUris.add(thumbnailUri);
+            }
+
+            c.close();
+
         }
-
-        String[] selectionArgs = new String[imageUris.size()];
-        for(int i = 0; i<imageUris.size(); i++){
-            selectionArgs[i] = imageUris.get(i).getLastPathSegment();
-        }
-
-        ContentResolver contentResolver = context.getContentResolver();
-        Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
-
-        while(c.moveToNext()){
-            int thumbnailID = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID));
-
-            Uri thumbnailUri = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, Integer.toString(thumbnailID));
-            thumbnailUris.add(thumbnailUri);
-        }
-
-        c.close();
-
         return thumbnailUris;
     }
 
-    public static String[] UriListToStringArray(List<Uri> uriList){
+    public static String[] uriListToStringArray(List<Uri> uriList){
         String [] imageUriArray = new String[uriList.size()];
         for(int i = 0; i<uriList.size(); i++){
             imageUriArray[i] = uriList.get(i).toString();
