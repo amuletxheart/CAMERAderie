@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -152,17 +153,18 @@ public class ImageUtil {
         }
         else{
             for(Uri imageUri : imageUris){
-                MediaStore.Images.Thumbnails.getThumbnail(
+                Bitmap thumbnail = MediaStore.Images.Thumbnails.getThumbnail(
                         context.getContentResolver(),
                         Long.parseLong(imageUri.getLastPathSegment()),
                         MediaStore.Images.Thumbnails.MINI_KIND,
                         null
                 );
+                Log.i(TAG, "TEST");
             }
 
             Uri queryUri = MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI;
 
-            String[] projection = {MediaStore.Images.Thumbnails._ID};
+            String[] projection = {MediaStore.Images.Thumbnails._ID, MediaStore.Images.Thumbnails.IMAGE_ID};
 
             String selection = MediaStore.Images.Thumbnails.KIND + " = " + MediaStore.Images.Thumbnails.MINI_KIND + " AND ";
             for(int i=0; i<imageUris.size(); i++){
@@ -181,11 +183,11 @@ public class ImageUtil {
             }
 
             ContentResolver contentResolver = context.getContentResolver();
-            Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+            Cursor c = contentResolver.query(queryUri, projection, null, null, null);
 
             while(c.moveToNext()){
                 int thumbnailID = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID));
-
+                int id = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails.IMAGE_ID));
                 Uri thumbnailUri = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, Integer.toString(thumbnailID));
                 thumbnailUris.add(thumbnailUri);
             }
