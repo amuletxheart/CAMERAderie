@@ -42,11 +42,14 @@ public class ImageUtil {
             }
 
             List<Uri> contentUris = getContentUris(context, imageFiles);
+            List<Uri> thumbnailUris = getThumbnails(context, contentUris);
             List<ImageWithThumbnail> imageURIList = new ArrayList<ImageWithThumbnail>();
 
-            for(Uri uri : contentUris){
+            for(int i = 0; i<contentUris.size(); i++){
                 ImageWithThumbnail imageWithThumbnail = new ImageWithThumbnail();
-                imageWithThumbnail.setImageUri(uri);
+                imageWithThumbnail.setImageFilePath(imageFiles.get(i).getAbsolutePath());
+                imageWithThumbnail.setImageUri(contentUris.get(i));
+                imageWithThumbnail.setThumbnailUri(thumbnailUris.get(i));
 
                 imageURIList.add(imageWithThumbnail);
             }
@@ -65,6 +68,7 @@ public class ImageUtil {
 
             for(int i = 0; i<contentUris.size(); i++){
                 ImageWithThumbnail imageWithThumbnail = new ImageWithThumbnail();
+                imageWithThumbnail.setImageFilePath(imageFiles[i].getAbsolutePath());
                 imageWithThumbnail.setImageUri(contentUris.get(i));
                 imageWithThumbnail.setThumbnailUri(thumbnailUris.get(i));
 
@@ -190,6 +194,53 @@ public class ImageUtil {
 
         }
         return thumbnailUris;
+    }
+
+    public static File getFile(Context context, Uri imageUri){
+        List<Uri> imageUris = new ArrayList<Uri>();
+        imageUris.add(imageUri);
+
+        return getFiles(context, imageUris).get(0);
+    }
+
+    public static List<File> getFiles(Context context, List<Uri> imageUris){
+        List<File> files = new ArrayList<File>();
+
+        if(imageUris.isEmpty()){
+            //do nothing
+        }
+        else{
+            Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+            String[] projection = {MediaStore.Images.Media.DATA};
+
+            String selection = "";
+            for(int i=0; i<imageUris.size(); i++){
+                //last element in List
+                if(i == imageUris.size()-1){
+                    selection += MediaStore.Images.Media._ID + " = ?";
+                }
+                else{
+                    selection += MediaStore.Images.Media._ID + " = ? OR ";
+                }
+            }
+
+            String[] selectionArgs = new String[imageUris.size()];
+            for(int i = 0; i<imageUris.size(); i++){
+                selectionArgs[i] = imageUris.get(i).getLastPathSegment();
+            }
+
+            ContentResolver contentResolver = context.getContentResolver();
+            Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+
+            while(c.moveToNext()){
+                String path = c.getString(c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                files.add(new File(path));
+            }
+
+            c.close();
+        }
+        return files;
     }
 
     public static String[] uriListToStringArray(List<Uri> uriList){

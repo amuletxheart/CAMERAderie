@@ -7,9 +7,18 @@ import android.os.Parcelable;
 /**
  * Created by L33901 on 1/13/2015.
  */
-public class ImageWithThumbnail implements Parcelable, Comparable{
+public class ImageWithThumbnail implements Comparable, Parcelable {
+    String imageFilePath;
     Uri imageUri;
     Uri thumbnailUri;
+
+    public String getImageFilePath() {
+        return imageFilePath;
+    }
+
+    public void setImageFilePath(String imageFilePath) {
+        this.imageFilePath = imageFilePath;
+    }
 
     public ImageWithThumbnail(){
 
@@ -31,7 +40,14 @@ public class ImageWithThumbnail implements Parcelable, Comparable{
         this.thumbnailUri = thumbnailUri;
     }
 
+    @Override
+    public int compareTo(Object another) {
+        String anotherImageFilePath = ((ImageWithThumbnail) another).getImageFilePath();
+        return imageFilePath.compareTo(anotherImageFilePath);
+    }
+
     protected ImageWithThumbnail(Parcel in) {
+        imageFilePath = in.readString();
         imageUri = (Uri) in.readValue(Uri.class.getClassLoader());
         thumbnailUri = (Uri) in.readValue(Uri.class.getClassLoader());
     }
@@ -43,6 +59,7 @@ public class ImageWithThumbnail implements Parcelable, Comparable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(imageFilePath);
         dest.writeValue(imageUri);
         dest.writeValue(thumbnailUri);
     }
@@ -59,10 +76,4 @@ public class ImageWithThumbnail implements Parcelable, Comparable{
             return new ImageWithThumbnail[size];
         }
     };
-
-    @Override
-    public int compareTo(Object another) {
-        Uri uri = ((ImageWithThumbnail) another).getImageUri();
-        return imageUri.compareTo(uri);
-    }
 }

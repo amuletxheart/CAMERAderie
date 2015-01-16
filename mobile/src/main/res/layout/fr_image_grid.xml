@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="No imageContainer in gallery"
+            android:text="No image in gallery"
             android:id="@+id/textViewInfo"
             android:singleLine="false"
             android:layout_centerVertical="true"

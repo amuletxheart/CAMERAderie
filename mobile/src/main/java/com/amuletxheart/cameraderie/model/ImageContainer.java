@@ -1,6 +1,5 @@
 package com.amuletxheart.cameraderie.model;
 
-import android.media.Image;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -13,25 +12,25 @@ import java.util.List;
  * Created by Yong Xin Shen on 1/7/2015.
  */
 public class ImageContainer implements Parcelable {
-    private List<ImageWithThumbnail> imageWithThumbnails;
+    private List<ImageWithThumbnail> imagesWithThumbnails;
 
     public ImageContainer(){
 
     }
 
     public List<ImageWithThumbnail> getImagesWithThumbnails() {
-        return imageWithThumbnails;
+        return imagesWithThumbnails;
     }
 
     public void setImageWithThumbnail(ImageWithThumbnail imageWithThumbnail){
         List<ImageWithThumbnail> imagesWithThumbnails = new ArrayList<ImageWithThumbnail>();
         imagesWithThumbnails.add(imageWithThumbnail);
 
-        this.setImagesWithThumbnails(imageWithThumbnails);
+        this.setImagesWithThumbnails(imagesWithThumbnails);
     }
 
-    public void setImagesWithThumbnails(List<ImageWithThumbnail> imageWithThumbnails) {
-        this.imageWithThumbnails = imageWithThumbnails;
+    public void setImagesWithThumbnails(List<ImageWithThumbnail> imagesWithThumbnails) {
+        this.imagesWithThumbnails = imagesWithThumbnails;
         organize();
     }
 
@@ -41,7 +40,7 @@ public class ImageContainer implements Parcelable {
             imageWithThumbnail.setImageUri(imageUri);
         }
 
-        setImagesWithThumbnails(imageWithThumbnails);
+        setImagesWithThumbnails(imagesWithThumbnails);
     }
 
     public void setImageUris(String[] imageUrisArray){
@@ -55,7 +54,7 @@ public class ImageContainer implements Parcelable {
 
     public List<Uri> getImageUris(){
         List<Uri> imageUris = new ArrayList<Uri>();
-        for(ImageWithThumbnail imageWithThumbnail : imageWithThumbnails){
+        for(ImageWithThumbnail imageWithThumbnail : imagesWithThumbnails){
             imageUris.add(imageWithThumbnail.getImageUri());
         }
 
@@ -64,23 +63,23 @@ public class ImageContainer implements Parcelable {
 
     public List<Uri> getThumbnailUris(){
         List<Uri> thumbnailUris = new ArrayList<Uri>();
-        for(ImageWithThumbnail imageWithThumbnail : imageWithThumbnails){
+        for(ImageWithThumbnail imageWithThumbnail : imagesWithThumbnails){
             thumbnailUris.add(imageWithThumbnail.getThumbnailUri());
         }
         return thumbnailUris;
     }
 
-    private void organize(){
-        Collections.sort(imageWithThumbnails);
-        Collections.reverse(imageWithThumbnails);
+    public void organize(){
+        Collections.sort(imagesWithThumbnails);
+        Collections.reverse(imagesWithThumbnails);
     }
 
     protected ImageContainer(Parcel in) {
         if (in.readByte() == 0x01) {
-            imageWithThumbnails = new ArrayList<ImageWithThumbnail>();
-            in.readList(imageWithThumbnails, ImageWithThumbnail.class.getClassLoader());
+            imagesWithThumbnails = new ArrayList<ImageWithThumbnail>();
+            in.readList(imagesWithThumbnails, ImageWithThumbnail.class.getClassLoader());
         } else {
-            imageWithThumbnails = null;
+            imagesWithThumbnails = null;
         }
     }
 
@@ -91,11 +90,11 @@ public class ImageContainer implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        if (imageWithThumbnails == null) {
+        if (imagesWithThumbnails == null) {
             dest.writeByte((byte) (0x00));
         } else {
             dest.writeByte((byte) (0x01));
-            dest.writeList(imageWithThumbnails);
+            dest.writeList(imagesWithThumbnails);
         }
     }
 

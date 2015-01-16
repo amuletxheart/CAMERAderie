@@ -55,7 +55,6 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 public class EditPhotoActivity extends ActionBarActivity {
     private static final String TAG = MainActivity.class.getName();
     private EditPhotoActivity editPhotoActivity = this;
-    Uri imageUri;
     ImageView frame;
     PhotoView image;
     DisplayImageOptions options;
@@ -66,6 +65,7 @@ public class EditPhotoActivity extends ActionBarActivity {
     private int imagePosition;
 
     private ImageContainer imageContainer;
+    private ImageWithThumbnail imageWithThumbnail;
     private String[] frameUrls;
 
     private android.widget.RelativeLayout.LayoutParams layoutParams;
@@ -137,7 +137,7 @@ public class EditPhotoActivity extends ActionBarActivity {
         imageUris = ImageUtil.uriListToStringArray(imageContainer.getImageUris());
         imagePosition = getIntent().getIntExtra(Constants.Extra.IMAGE_POSITION, 0);
 
-        imageUri = Uri.parse(imageUris[imagePosition]);
+        imageWithThumbnail = imageContainer.getImagesWithThumbnails().get(imagePosition);
 
         frame = (ImageView)findViewById(R.id.frame);
         image = (PhotoView)findViewById(R.id.image);
@@ -149,7 +149,7 @@ public class EditPhotoActivity extends ActionBarActivity {
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
         ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.displayImage(imageUri.getPath(), image, options);
+        imageLoader.displayImage(imageWithThumbnail.getImageUri().toString(), image, options);
     }
 
     public void clickShowControls(){
@@ -209,7 +209,7 @@ public class EditPhotoActivity extends ActionBarActivity {
         Bitmap compositeBitmap = overlay(scaledImageBitmap, frameBitmap);
 
         String filename = String.format("%d", System.currentTimeMillis());
-        File compositeImage = new File(imageUri.getPath().replace(".jpg", "_edited_" + filename + ".jpg"));
+        File compositeImage = new File(imageWithThumbnail.getImageFilePath().replace(".jpg", "_edited_" + filename + ".jpg"));
 
         try{
             FileOutputStream outStream = new FileOutputStream(compositeImage);
@@ -223,7 +223,7 @@ public class EditPhotoActivity extends ActionBarActivity {
         startImagePagerActivity(compositeImage);
     }
 
-    private void startImagePagerActivity(File imageFile){
+    private void startImagePagerActivity(final File imageFile){
         MediaScannerConnection.scanFile(
                 editPhotoActivity,
                 new String[] {imageFile.getAbsolutePath()},
@@ -232,8 +232,10 @@ public class EditPhotoActivity extends ActionBarActivity {
                     @Override
                     public void onScanCompleted(String path, Uri uri) {
                         ImageWithThumbnail imageWithThumbnail = new ImageWithThumbnail();
+                        imageWithThumbnail.setImageFilePath(imageFile.getAbsolutePath());
                         imageWithThumbnail.setImageUri(uri);
                         imageContainer.getImagesWithThumbnails().add(imageWithThumbnail);
+                        imageContainer.organize();
 
                         Intent intent = new Intent(editPhotoActivity, SimpleImageActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
