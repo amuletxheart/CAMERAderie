@@ -76,6 +76,9 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
         storageLocation = (ImageUtil.StorageLocation)getArguments().getSerializable(Constants.Extra.IMAGE_SOURCE);
         imageContainer = ImageUtil.loadFromStorage(getActivity(), storageLocation);
         imageUrls = ImageUtil.uriListToStringArray(imageContainer.getThumbnailUris());
+
+        ImageLoader.getInstance().clearDiskCache();
+        ImageLoader.getInstance().clearMemoryCache();
     }
 
 	@Override

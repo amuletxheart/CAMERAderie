@@ -159,7 +159,6 @@ public class ImageUtil {
                         MediaStore.Images.Thumbnails.MINI_KIND,
                         null
                 );
-                Log.i(TAG, "TEST");
             }
 
             Uri queryUri = MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI;

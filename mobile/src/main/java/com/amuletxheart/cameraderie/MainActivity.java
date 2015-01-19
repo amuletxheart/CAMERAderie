@@ -15,6 +15,7 @@ import com.amuletxheart.cameraderie.gallery.activity.GalleryHomeActivity;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
 import com.amuletxheart.cameraderie.gallery.activity.TabbedImageActivity;
 import com.amuletxheart.cameraderie.gallery.fragment.ImageGridFragment;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
 
