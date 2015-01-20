@@ -17,7 +17,6 @@ package com.amuletxheart.cameraderie.gallery.fragment;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,6 +31,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.amuletxheart.cameraderie.R;
+import com.amuletxheart.cameraderie.gallery.Constants;
+import com.amuletxheart.cameraderie.model.ImageContainer;
+import com.amuletxheart.cameraderie.model.ImageUtil;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -39,45 +41,22 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
 public class ImageGridFragment extends AbsListViewBaseFragment {
-    private static final String TAG = ImageGridFragment.class.toString();
+    private static final String TAG = ImageGridFragment.class.getName();
+    private ImageUtil.StorageLocation storageLocation;
 
 	public static final int INDEX = 1;
 
     //Test images
 	//String[] imageUrls = Constants.IMAGES;
 
-    private String[] imageUrls = loadImagesFromStorage();
+    private ImageContainer imageContainer;
+    private String[] imageUrls;
 
 	DisplayImageOptions options;
-
-    private String[] loadImagesFromStorage(){
-        File imageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "CAMERAderie");
-
-        File[] imageFiles = imageDir.listFiles();
-
-        List<String> imageURIList = new ArrayList<String>();
-        String[] imageURIArray;
-
-        for(File image : imageFiles){
-            imageURIList.add("file://" + image.getAbsolutePath());
-        }
-        Collections.sort(imageURIList);
-        Collections.reverse(imageURIList);
-        imageURIArray = imageURIList.toArray(new String[imageURIList.size()]);
-
-        return imageURIArray;
-    }
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -93,6 +72,13 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
                 .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
 				.bitmapConfig(Bitmap.Config.RGB_565)
 				.build();
+
+        storageLocation = (ImageUtil.StorageLocation)getArguments().getSerializable(Constants.Extra.IMAGE_SOURCE);
+        imageContainer = ImageUtil.loadFromStorage(getActivity(), storageLocation);
+        imageUrls = ImageUtil.uriListToStringArray(imageContainer.getThumbnailUris());
+
+        ImageLoader.getInstance().clearDiskCache();
+        ImageLoader.getInstance().clearMemoryCache();
     }
 
 	@Override
@@ -104,7 +90,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 getActivity().finish();
-				startImagePagerActivity(imageUrls, position);
+				startImagePagerActivity(imageContainer, position);
 			}
 		});
 		return rootView;

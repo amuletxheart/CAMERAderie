@@ -13,13 +13,15 @@ import com.amuletxheart.cameraderie.camera.CameraActivity;
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.GalleryHomeActivity;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
+import com.amuletxheart.cameraderie.gallery.activity.TabbedImageActivity;
 import com.amuletxheart.cameraderie.gallery.fragment.ImageGridFragment;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
 
 
 public class MainActivity extends ActionBarActivity {
-    private static final String TAG = MainActivity.class.toString();
+    private static final String TAG = MainActivity.class.getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +70,11 @@ public class MainActivity extends ActionBarActivity {
     public void clickGallery(View view){
         Log.i(TAG, "Clicked on gallery button.");
 
-        Intent intent = new Intent(this, SimpleImageActivity.class);
+        /*Intent intent = new Intent(this, SimpleImageActivity.class);
         intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGridFragment.INDEX);
+        startActivity(intent);*/
+
+        Intent intent = new Intent(this, TabbedImageActivity.class);
         startActivity(intent);
     }
 }

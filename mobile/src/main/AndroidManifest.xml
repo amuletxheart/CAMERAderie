@@ -16,8 +16,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
-        android:largeHeap="true" >
+        android:largeHeap="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" >
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -25,9 +25,10 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -35,7 +36,8 @@
             android:name=".camera.CameraActivity"
             android:label="Camera"
             android:launchMode="singleTask"
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen"
+            android:parentActivityName=".MainActivity">
         </activity>
 
         <service android:name=".camera.DataLayerListenerService" >
@@ -54,16 +56,17 @@
         </activity>
         <activity
             android:name=".EditPhotoActivity"
-            android:label="@string/title_activity_edit_photo" >
+            android:label="@string/title_activity_edit_photo"
+            android:parentActivityName=".gallery.activity.SimpleImageActivity">
         </activity>
-
         <activity
             android:name=".gallery.activity.GalleryHomeActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
             android:name=".gallery.activity.SimpleImageActivity"
-            android:label="@string/ac_name_image_list" />
+            android:label="@string/ac_name_image_list"
+            android:parentActivityName=".gallery.activity.TabbedImageActivity"/>
         <activity
             android:name=".gallery.activity.ComplexImageActivity"
             android:label="@string/ac_name_complex" />
@@ -78,6 +81,12 @@
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".gallery.activity.TabbedImageActivity"
+            android:label="@string/title_activity_tabbed_image"
+            android:parentActivityName=".MainActivity">
+        </activity>
     </application>
 
 </manifest>

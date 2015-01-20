@@ -8,6 +8,7 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.ExifInterface;
 import android.media.MediaPlayer;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,6 +26,9 @@ import com.amuletxheart.cameraderie.R;
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
 import com.amuletxheart.cameraderie.gallery.fragment.ImagePagerFragment;
+import com.amuletxheart.cameraderie.model.ImageContainer;
+import com.amuletxheart.cameraderie.model.ImageUtil;
+import com.amuletxheart.cameraderie.model.ImageWithThumbnail;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -47,6 +51,7 @@ import java.util.TimerTask;
 
 
 public class CameraActivity extends Activity implements SurfaceHolder.Callback {
+    private CameraActivity cameraActivity = this;
 
     private static final String TAG = "WearCamera";
     private static final boolean D = true;
@@ -269,8 +274,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         List<Camera.Size> sizes = params.getSupportedPictureSizes();
         Camera.Size size = sizes.get(0);
         for (int i = 0; i < sizes.size(); i++) {
-            if (sizes.get(i).width > size.width)
+            final double EPSILON = 0.001;
+            final double DESIRED_ASPECT_RATIO = 16.0/9.0;
+            double aspectRatio = (double)sizes.get(i).width / (double)sizes.get(i).height;
+
+            if(Math.abs(aspectRatio - DESIRED_ASPECT_RATIO) < EPSILON){
                 size = sizes.get(i);
+                break;
+            }
         }
         params.setPictureSize(size.width, size.height);
         mCamera.setParameters(params);
@@ -317,7 +328,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     sendToWearable("result", baos.toByteArray(), null);
                     mCamera.startPreview();
 
-                    startImagePagerActivity(imageFile.getPath());
+                    startImagePagerActivity(imageFile);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -329,15 +340,31 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         safeToTakePicture = true;
     }
 
-    private void startImagePagerActivity(String filename){
-        String[] imageUris = {"file://" + filename};
+    private void startImagePagerActivity(File imageFile){
+        MediaScannerConnection.scanFile(
+                cameraActivity,
+                new String[] {imageFile.getAbsolutePath()},
+                null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.i(TAG, "Finished scanning: " + uri);
 
-        Intent intent = new Intent(this, SimpleImageActivity.class);
-        intent.putExtra(Constants.Extra.CAMERA_PREVIEW, true);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
-        intent.putExtra(Constants.Extra.IMAGE_POSITION, 0);
-        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
-        startActivity(intent);
+                        ImageWithThumbnail imageWithThumbnail = new ImageWithThumbnail();
+                        imageWithThumbnail.setImageUri(uri);
+                        imageWithThumbnail.setThumbnailUri(ImageUtil.getThumbnail(cameraActivity, uri));
+                        ImageContainer imageContainer = new ImageContainer();
+                        imageContainer.setImageWithThumbnail(imageWithThumbnail);
+
+                        Intent intent = new Intent(cameraActivity, SimpleImageActivity.class);
+                        intent.putExtra(Constants.Extra.CAMERA_PREVIEW, true);
+                        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+                        intent.putExtra(Constants.Extra.IMAGE_POSITION, 0);
+                        intent.putExtra(Constants.Extra.IMAGE_CONTAINER, imageContainer);
+                        startActivity(intent);
+                    }
+                }
+        );
     }
 
     public void clickSwitchCamera(View v){
@@ -536,10 +563,27 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         File imageFile = new File(imageDir + filename);
 
         Bitmap originalImage = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length);
-        int width = 2560;
-        double ratio = ((double)originalImage.getWidth())/((double)width);
-        double heightD = ((double)originalImage.getHeight())/ratio;
-        int height = (int)heightD;
+        final int DESIRED_WIDTH = 2560;
+        final int DESIRED_HEIGHT = 1440;
+
+        int width = originalImage.getWidth();
+        int height = originalImage.getHeight();
+
+        //landscape
+        if(width >= height){
+            double ratio = ((double)width)/((double)DESIRED_WIDTH);
+            double heightD = ((double)originalImage.getHeight())/ratio;
+            width = DESIRED_WIDTH;
+            height = (int)heightD;
+        }
+        //portrait
+        else{
+            double ratio = ((double)height)/((double)DESIRED_WIDTH);
+            double widthD = ((double)originalImage.getWidth())/ratio;
+            width = (int)widthD;
+            height = DESIRED_WIDTH;
+        }
+
 
         Bitmap resizedImage = Bitmap.createScaledBitmap(originalImage, width, height, true);
 
@@ -556,12 +600,12 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 newExif.setAttribute(ExifInterface.TAG_ORIENTATION, exifOrientation);
             }
             newExif.saveAttributes();
+
+
         }
         catch(IOException e){
             Log.e(TAG,"Cannot write to file: " + imageFile.getAbsolutePath(), e);
         }
-
-        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
 
         return imageFile;
     }

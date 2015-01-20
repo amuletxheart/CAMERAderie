@@ -11,6 +11,7 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -28,6 +29,9 @@ import android.widget.LinearLayout;
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
 import com.amuletxheart.cameraderie.gallery.fragment.ImagePagerFragment;
+import com.amuletxheart.cameraderie.model.ImageContainer;
+import com.amuletxheart.cameraderie.model.ImageUtil;
+import com.amuletxheart.cameraderie.model.ImageWithThumbnail;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
@@ -51,7 +55,6 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 public class EditPhotoActivity extends ActionBarActivity {
     private static final String TAG = MainActivity.class.getName();
     private EditPhotoActivity editPhotoActivity = this;
-    Uri imageUri;
     ImageView frame;
     PhotoView image;
     DisplayImageOptions options;
@@ -61,6 +64,8 @@ public class EditPhotoActivity extends ActionBarActivity {
     private String[] imageUris;
     private int imagePosition;
 
+    private ImageContainer imageContainer;
+    private ImageWithThumbnail imageWithThumbnail;
     private String[] frameUrls;
 
     private android.widget.RelativeLayout.LayoutParams layoutParams;
@@ -128,16 +133,23 @@ public class EditPhotoActivity extends ActionBarActivity {
         loadListView();
 
         cameraPreview = getIntent().getBooleanExtra(Constants.Extra.CAMERA_PREVIEW, false);
-        imageUris = getIntent().getStringArrayExtra(Constants.Extra.IMAGE_URIS);
+        imageContainer = getIntent().getParcelableExtra(Constants.Extra.IMAGE_CONTAINER);
+        imageUris = ImageUtil.uriListToStringArray(imageContainer.getImageUris());
         imagePosition = getIntent().getIntExtra(Constants.Extra.IMAGE_POSITION, 0);
 
-        imageUri = Uri.parse(imageUris[imagePosition]);
+        imageWithThumbnail = imageContainer.getImagesWithThumbnails().get(imagePosition);
 
         frame = (ImageView)findViewById(R.id.frame);
         image = (PhotoView)findViewById(R.id.image);
 
+        //image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        image.setMediumScale(2.0f);
+        image.setMaximumScale(4.0f);
+
+        image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
         ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.displayImage("file://" + imageUri.getPath(), image, options);
+        imageLoader.displayImage(imageWithThumbnail.getImageUri().toString(), image, options);
     }
 
     public void clickShowControls(){
@@ -197,32 +209,46 @@ public class EditPhotoActivity extends ActionBarActivity {
         Bitmap compositeBitmap = overlay(scaledImageBitmap, frameBitmap);
 
         String filename = String.format("%d", System.currentTimeMillis());
-        File compositeImage = new File(imageUri.getPath().replace(".jpg", "_edited_" + filename + ".jpg"));
+        File compositeImage = new File(imageWithThumbnail.getImageFilePath().replace(".jpg", "_edited_" + filename + ".jpg"));
 
         try{
             FileOutputStream outStream = new FileOutputStream(compositeImage);
             compositeBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
             outStream.close();
-
-            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compositeImage)));
         }
         catch(IOException e){
             Log.e(TAG, "Unable to write the edited image file.", e);
         }
 
-        finish();
+        startImagePagerActivity(compositeImage);
+    }
 
-        List<String> imageUriList = new ArrayList<String>(Arrays.asList(imageUris));
-        imageUriList.add(imagePosition, "file://" + compositeImage.getAbsolutePath());
+    private void startImagePagerActivity(final File imageFile){
+        MediaScannerConnection.scanFile(
+                editPhotoActivity,
+                new String[] {imageFile.getAbsolutePath()},
+                null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        ImageWithThumbnail imageWithThumbnail = new ImageWithThumbnail();
+                        imageWithThumbnail.setImageFilePath(imageFile.getAbsolutePath());
+                        imageWithThumbnail.setImageUri(uri);
+                        imageContainer.getImagesWithThumbnails().add(imageWithThumbnail);
+                        imageContainer.organize();
 
-        String[] imageUris = imageUriList.toArray(new String[imageUriList.size()]);
-        Intent intent = new Intent(this, SimpleImageActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(Constants.Extra.CAMERA_PREVIEW, cameraPreview);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
-        intent.putExtra(Constants.Extra.IMAGE_POSITION, imagePosition);
-        intent.putExtra(Constants.Extra.IMAGE_URIS, imageUris);
-        startActivity(intent);
+                        Intent intent = new Intent(editPhotoActivity, SimpleImageActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra(Constants.Extra.CAMERA_PREVIEW, cameraPreview);
+                        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+                        intent.putExtra(Constants.Extra.IMAGE_POSITION, imagePosition);
+                        intent.putExtra(Constants.Extra.IMAGE_CONTAINER, imageContainer);
+                        startActivity(intent);
+
+                        editPhotoActivity.finish();
+                    }
+                }
+        );
     }
 
     private void loadListView(){
