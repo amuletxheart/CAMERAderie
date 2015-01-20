@@ -127,7 +127,7 @@ public class ImageUtil {
             while(c.moveToNext()){
                 long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
                 Uri contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                Log.i(TAG, "ImageContainer found " + contentUri);
+                Log.i(TAG, "Image found " + contentUri);
 
                 contentUris.add(contentUri);
             }
@@ -152,6 +152,7 @@ public class ImageUtil {
             //do nothing
         }
         else{
+            //force thumbnails generation
             for(Uri imageUri : imageUris){
                 Bitmap thumbnail = MediaStore.Images.Thumbnails.getThumbnail(
                         context.getContentResolver(),
@@ -163,7 +164,9 @@ public class ImageUtil {
 
             Uri queryUri = MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI;
 
-            String[] projection = {MediaStore.Images.Thumbnails._ID, MediaStore.Images.Thumbnails.IMAGE_ID};
+            String[] projection = {MediaStore.Images.Thumbnails._ID,
+                    MediaStore.Images.Thumbnails.IMAGE_ID,
+                    MediaStore.Images.Thumbnails.DATA};
 
             String selection = MediaStore.Images.Thumbnails.KIND + " = " + MediaStore.Images.Thumbnails.MINI_KIND + " AND ";
             for(int i=0; i<imageUris.size(); i++){
@@ -187,8 +190,11 @@ public class ImageUtil {
             while(c.moveToNext()){
                 int thumbnailID = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID));
                 int id = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails.IMAGE_ID));
+                String path = c.getString(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails.DATA));
+
                 Uri thumbnailUri = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, Integer.toString(thumbnailID));
-                thumbnailUris.add(thumbnailUri);
+                Uri filePath = Uri.parse("file://" + path);
+                thumbnailUris.add(filePath);
             }
 
             c.close();
