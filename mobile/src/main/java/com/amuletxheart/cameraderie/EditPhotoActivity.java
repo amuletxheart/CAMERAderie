@@ -21,7 +21,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -117,8 +119,6 @@ public class EditPhotoActivity extends ActionBarActivity {
         ImageButton imageButtonSave = (ImageButton)findViewById(R.id.imageButtonSave);
         setImageButtonEnabled(this, false, imageButtonSave, R.drawable.ic_action_save);
 
-        clickShowControls();
-
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.ic_empty)
                 .showImageOnFail(R.drawable.ic_error)
@@ -150,24 +150,21 @@ public class EditPhotoActivity extends ActionBarActivity {
 
         ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.displayImage(imageWithThumbnail.getImageUri().toString(), image, options);
-    }
 
-    public void clickShowControls(){
-        PhotoView photoView = (PhotoView)findViewById(R.id.image);
-        final LinearLayout controls = (LinearLayout)findViewById(R.id.linearLayoutControls);
-        photoView.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
+        final FrameLayout frameLayout = (FrameLayout)findViewById(R.id.frameLayoutCanvas);
+
+        frameLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public void onViewTap(View view, float v, float v2) {
-                Log.i(TAG, "Clicked on show controls button.");
+            public void onGlobalLayout() {
+                final double DESIRED_ASPECT_RATIO = 16.0/9.0;
 
-                if(showControls){
-                    controls.setVisibility(View.INVISIBLE);
-                    showControls = false;
-                }
-                else{
-                    controls.setVisibility(View.VISIBLE);
-                    showControls = true;
-                }
+                ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
+                int height = frameLayout.getHeight();
+                int width = frameLayout.getWidth();
+
+                layoutParams.width =(int)(height / DESIRED_ASPECT_RATIO);
+                frameLayout.invalidate();
+                frameLayout.requestLayout();
             }
         });
     }
