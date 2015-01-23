@@ -127,7 +127,6 @@ public class ImageUtil {
             while(c.moveToNext()){
                 long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
                 Uri contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                Log.i(TAG, "Image found " + contentUri);
 
                 contentUris.add(contentUri);
             }

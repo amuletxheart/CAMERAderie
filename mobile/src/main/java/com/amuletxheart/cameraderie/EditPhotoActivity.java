@@ -27,6 +27,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
@@ -151,20 +152,28 @@ public class EditPhotoActivity extends ActionBarActivity {
         ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.displayImage(imageWithThumbnail.getImageUri().toString(), image, options);
 
-        final FrameLayout frameLayout = (FrameLayout)findViewById(R.id.frameLayoutCanvas);
+        final RelativeLayout relativeLayout = (RelativeLayout)findViewById(R.id.relativeLayoutCanvas);
 
-        frameLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        relativeLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 final double DESIRED_ASPECT_RATIO = 16.0/9.0;
 
-                ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
-                int height = frameLayout.getHeight();
-                int width = frameLayout.getWidth();
+                ViewGroup.LayoutParams layoutParams = relativeLayout.getLayoutParams();
+                int height = relativeLayout.getHeight();
+                int width = relativeLayout.getWidth();
 
-                layoutParams.width =(int)(height / DESIRED_ASPECT_RATIO);
-                frameLayout.invalidate();
-                frameLayout.requestLayout();
+                if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    layoutParams.width =(int)(height * DESIRED_ASPECT_RATIO);
+                }
+                else{
+                    layoutParams.width =(int)(height / DESIRED_ASPECT_RATIO);
+                }
+
+                relativeLayout.invalidate();
+                relativeLayout.requestLayout();
+
+                relativeLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
     }

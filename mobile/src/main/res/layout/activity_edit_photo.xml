@@ -2,21 +2,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="#ffffffff"
     android:orientation="vertical"
     android:animateLayoutChanges="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/relativeLayoutCanvas"
+        android:layout_below="@+id/linearLayoutTopControls"
+        android:layout_above="@+id/linearLayoutBottomControls"
+        android:layout_centerHorizontal="true">
+
+        <uk.co.senab.photoview.PhotoView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <ImageView
+            android:id="@+id/frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </RelativeLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/linearLayoutTopControls">
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" >
-        </Space>
+        android:id="@+id/linearLayoutTopControls"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp">
 
         <ImageButton
             android:layout_width="50dp"
@@ -40,31 +55,7 @@
 
             android:onClick="clickSave"/>
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" >
-        </Space>
     </LinearLayout>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/frameLayoutCanvas"
-        android:layout_above="@+id/linearLayoutBottomControls"
-        android:layout_below="@+id/linearLayoutTopControls"
-        android:layout_margin="0dp">
-
-        <uk.co.senab.photoview.PhotoView
-            android:id="@+id/image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-        <ImageView
-            android:id="@+id/frame"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </FrameLayout>
 
 
     <LinearLayout
