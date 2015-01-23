@@ -16,6 +16,7 @@
 package com.amuletxheart.cameraderie.gallery.fragment;
 
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -165,6 +166,18 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 						@Override
 						public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
 							holder.progressBar.setVisibility(View.GONE);
+
+                            Matrix matrix = new Matrix();
+                            matrix.postRotate(90);
+                            Bitmap rotatedBitmap = Bitmap.createBitmap(loadedImage,
+                                    0,
+                                    0,
+                                    loadedImage.getWidth(),
+                                    loadedImage.getHeight(),
+                                    matrix,
+                                    true);
+
+                            holder.imageView.setImageBitmap(rotatedBitmap);
 						}
 					}, new ImageLoadingProgressListener() {
 						@Override

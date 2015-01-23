@@ -249,6 +249,54 @@ public class ImageUtil {
         return files;
     }
 
+    public static List<Integer> getOrientations(List<Uri> imageUris){
+        List<Integer> orientations = new ArrayList<Integer>();
+
+        if(imageUris.isEmpty()){
+            //do nothing
+        }
+        else{
+            Uri queryUri = MediaStore.Images.ImageColumns.;
+
+            String[] projection = {MediaStore.Images.Thumbnails._ID,
+                    MediaStore.Images.Thumbnails.IMAGE_ID,
+                    MediaStore.Images.Thumbnails.DATA};
+
+            String selection = MediaStore.Images.Thumbnails.KIND + " = " + MediaStore.Images.Thumbnails.MINI_KIND + " AND ";
+            for(int i=0; i<imageUris.size(); i++){
+                //last element in List
+                if(i == imageUris.size()-1){
+                    selection += MediaStore.Images.Thumbnails.IMAGE_ID + " = ?";
+                }
+                else{
+                    selection += MediaStore.Images.Thumbnails.IMAGE_ID + " = ? OR ";
+                }
+            }
+
+            String[] selectionArgs = new String[imageUris.size()];
+            for(int i = 0; i<imageUris.size(); i++){
+                selectionArgs[i] = imageUris.get(i).getLastPathSegment();
+            }
+
+            ContentResolver contentResolver = context.getContentResolver();
+            Cursor c = contentResolver.query(queryUri, projection, null, null, null);
+
+            while(c.moveToNext()){
+                int thumbnailID = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID));
+                int id = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails.IMAGE_ID));
+                String path = c.getString(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails.DATA));
+
+                Uri thumbnailUri = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, Integer.toString(thumbnailID));
+                Uri filePath = Uri.parse("file://" + path);
+                thumbnailUris.add(filePath);
+            }
+
+            c.close();
+        }
+
+        return orientations;
+    }
+
     public static String[] uriListToStringArray(List<Uri> uriList){
         String [] imageUriArray = new String[uriList.size()];
         for(int i = 0; i<uriList.size(); i++){
