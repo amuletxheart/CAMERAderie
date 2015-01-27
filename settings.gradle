@@ -1,1 +1,1 @@
-include ':mobile', ':wear', ':facebook'
+include ':mobile', ':wear'

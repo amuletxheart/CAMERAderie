@@ -35,6 +35,5 @@ dependencies {
     compile('com.twitter.sdk.android:tweet-composer:0.7.0@aar') {
         transitive = true;
     }
-    //compile 'com.facebook.android:facebook-android-sdk:3.21.1'
-    compile project(':facebook')
+    compile 'com.facebook.android:facebook-android-sdk:3.22.0'
 }
