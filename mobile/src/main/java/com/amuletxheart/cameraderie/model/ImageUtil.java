@@ -184,7 +184,7 @@ public class ImageUtil {
             }
 
             ContentResolver contentResolver = context.getContentResolver();
-            Cursor c = contentResolver.query(queryUri, projection, null, null, null);
+            Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
 
             while(c.moveToNext()){
                 int thumbnailID = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID));
@@ -249,27 +249,25 @@ public class ImageUtil {
         return files;
     }
 
-    public static List<Integer> getOrientations(List<Uri> imageUris){
+    public static List<Integer> getOrientations(Context context, List<Uri> imageUris){
         List<Integer> orientations = new ArrayList<Integer>();
 
         if(imageUris.isEmpty()){
             //do nothing
         }
         else{
-            Uri queryUri = MediaStore.Images.ImageColumns.;
+            Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
-            String[] projection = {MediaStore.Images.Thumbnails._ID,
-                    MediaStore.Images.Thumbnails.IMAGE_ID,
-                    MediaStore.Images.Thumbnails.DATA};
+            String[] projection = {MediaStore.Images.Media.ORIENTATION};
 
-            String selection = MediaStore.Images.Thumbnails.KIND + " = " + MediaStore.Images.Thumbnails.MINI_KIND + " AND ";
+            String selection = "";
             for(int i=0; i<imageUris.size(); i++){
                 //last element in List
                 if(i == imageUris.size()-1){
-                    selection += MediaStore.Images.Thumbnails.IMAGE_ID + " = ?";
+                    selection += MediaStore.Images.Media._ID + " = ?";
                 }
                 else{
-                    selection += MediaStore.Images.Thumbnails.IMAGE_ID + " = ? OR ";
+                    selection += MediaStore.Images.Media._ID + " = ? OR ";
                 }
             }
 
@@ -282,13 +280,8 @@ public class ImageUtil {
             Cursor c = contentResolver.query(queryUri, projection, null, null, null);
 
             while(c.moveToNext()){
-                int thumbnailID = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID));
-                int id = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails.IMAGE_ID));
-                String path = c.getString(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails.DATA));
-
-                Uri thumbnailUri = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, Integer.toString(thumbnailID));
-                Uri filePath = Uri.parse("file://" + path);
-                thumbnailUris.add(filePath);
+                int orientation = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Media.ORIENTATION));
+                orientations.add(orientation);
             }
 
             c.close();
