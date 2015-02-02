@@ -80,5 +80,29 @@
                 android:id="@+id/textViewGallery"
                 android:layout_gravity="center_vertical" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutIcon"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:weightSum="1" >
+
+        </LinearLayout>
+
     </LinearLayout>
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageNYP"
+        android:scaleType="centerInside"
+        android:src="@drawable/nyp"
+        android:layout_gravity="right"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true" />
+
 </RelativeLayout>
