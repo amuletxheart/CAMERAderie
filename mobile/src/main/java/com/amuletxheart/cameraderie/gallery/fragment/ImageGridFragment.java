@@ -17,6 +17,7 @@ package com.amuletxheart.cameraderie.gallery.fragment;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -42,6 +43,8 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import java.util.List;
+
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
@@ -56,6 +59,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 
     private ImageContainer imageContainer;
     private String[] imageUrls;
+    private List<Integer> orientations;
 
 	DisplayImageOptions options;
 
@@ -77,6 +81,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
         storageLocation = (ImageUtil.StorageLocation)getArguments().getSerializable(Constants.Extra.IMAGE_SOURCE);
         imageContainer = ImageUtil.loadFromStorage(getActivity(), storageLocation);
         imageUrls = ImageUtil.uriListToStringArray(imageContainer.getThumbnailUris());
+        orientations = ImageUtil.getOrientations(getActivity(), imageContainer.getImageUris());
     }
 
 	@Override
@@ -133,7 +138,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			final ViewHolder holder;
 			View view = convertView;
 			if (view == null) {
@@ -165,7 +170,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 							holder.progressBar.setVisibility(View.GONE);
 
                             Matrix matrix = new Matrix();
-                            matrix.postRotate(90);
+                            matrix.postRotate(orientations.get(position));
                             Bitmap rotatedBitmap = Bitmap.createBitmap(loadedImage,
                                     0,
                                     0,

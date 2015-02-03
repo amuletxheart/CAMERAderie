@@ -17,6 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -277,7 +278,7 @@ public class ImageUtil {
             }
 
             ContentResolver contentResolver = context.getContentResolver();
-            Cursor c = contentResolver.query(queryUri, projection, null, null, null);
+            Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
 
             while(c.moveToNext()){
                 int orientation = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Media.ORIENTATION));
@@ -286,6 +287,9 @@ public class ImageUtil {
 
             c.close();
         }
+
+        //MediaStore retrieves in ascending order, but we need in descending order
+        Collections.reverse(orientations);
 
         return orientations;
     }
