@@ -17,6 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -127,7 +128,6 @@ public class ImageUtil {
             while(c.moveToNext()){
                 long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
                 Uri contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                Log.i(TAG, "Image found " + contentUri);
 
                 contentUris.add(contentUri);
             }
@@ -185,7 +185,7 @@ public class ImageUtil {
             }
 
             ContentResolver contentResolver = context.getContentResolver();
-            Cursor c = contentResolver.query(queryUri, projection, null, null, null);
+            Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
 
             while(c.moveToNext()){
                 int thumbnailID = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID));
@@ -248,6 +248,50 @@ public class ImageUtil {
             c.close();
         }
         return files;
+    }
+
+    public static List<Integer> getOrientations(Context context, List<Uri> imageUris){
+        List<Integer> orientations = new ArrayList<Integer>();
+
+        if(imageUris.isEmpty()){
+            //do nothing
+        }
+        else{
+            Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+            String[] projection = {MediaStore.Images.Media.ORIENTATION};
+
+            String selection = "";
+            for(int i=0; i<imageUris.size(); i++){
+                //last element in List
+                if(i == imageUris.size()-1){
+                    selection += MediaStore.Images.Media._ID + " = ?";
+                }
+                else{
+                    selection += MediaStore.Images.Media._ID + " = ? OR ";
+                }
+            }
+
+            String[] selectionArgs = new String[imageUris.size()];
+            for(int i = 0; i<imageUris.size(); i++){
+                selectionArgs[i] = imageUris.get(i).getLastPathSegment();
+            }
+
+            ContentResolver contentResolver = context.getContentResolver();
+            Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+
+            while(c.moveToNext()){
+                int orientation = c.getInt(c.getColumnIndexOrThrow(MediaStore.Images.Media.ORIENTATION));
+                orientations.add(orientation);
+            }
+
+            c.close();
+        }
+
+        //MediaStore retrieves in ascending order, but we need in descending order
+        Collections.reverse(orientations);
+
+        return orientations;
     }
 
     public static String[] uriListToStringArray(List<Uri> uriList){

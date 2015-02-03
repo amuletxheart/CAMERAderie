@@ -23,6 +23,7 @@ import com.amuletxheart.cameraderie.R;
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.fragment.ImageGridFragment;
 import com.amuletxheart.cameraderie.model.ImageUtil;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class TabbedImageActivity extends ActionBarActivity {
     private static final String STATE_POSITION = "STATE_POSITION";
@@ -58,32 +59,8 @@ public class TabbedImageActivity extends ActionBarActivity {
         mViewPager.setCurrentItem(pagerPosition);
         mViewPager.setPageMargin(20);
 
-        /*final ActionBar actionBar = getSupportActionBar();
-
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // Create a tab listener that is called when the user changes tabs.
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-                mViewPager.setCurrentItem(tab.getPosition());
-            }
-
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-                // hide the given tab
-            }
-
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-                // probably ignore this event
-            }
-        };
-
-        for (int i = 0; i < 2; i++) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText("Tab " + (i + 1))
-                            .setTabListener(tabListener));
-        }*/
+        ImageLoader.getInstance().clearDiskCache();
+        ImageLoader.getInstance().clearMemoryCache();
     }
 
     @Override
