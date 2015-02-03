@@ -1,29 +1,22 @@
 package com.amuletxheart.cameraderie.gallery.activity;
 
-import java.util.Locale;
-
+import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.amuletxheart.cameraderie.R;
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.fragment.ImageGridFragment;
 import com.amuletxheart.cameraderie.model.ImageUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import java.util.Locale;
 
 public class TabbedImageActivity extends ActionBarActivity {
     private static final String STATE_POSITION = "STATE_POSITION";
@@ -47,6 +40,7 @@ public class TabbedImageActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tabbed_image);
+
         int pagerPosition = savedInstanceState == null ? 0 : savedInstanceState.getInt(STATE_POSITION);
 
         // Create the adapter that will return a fragment for each of the three
@@ -62,7 +56,6 @@ public class TabbedImageActivity extends ActionBarActivity {
         ImageLoader.getInstance().clearDiskCache();
         ImageLoader.getInstance().clearMemoryCache();
     }
-
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         outState.putInt(STATE_POSITION, mViewPager.getCurrentItem());

@@ -42,5 +42,23 @@
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
+    <string name="title_activity_share_dialog">ShareDialog</string>
+
+    <!--LIVE APP ID-->
+    <string name="app_id">1406218673005163</string>
+    <string name="facebook_post_content_desc">Image to share</string>
+    <string name="app_package_name">com.example.hp.facebookshare</string>
+    <string name="success">Success</string>
+    <string name="successfully_posted_post">Successfully posted to Facebook</string>
+    <string name="unable_to_post">You may not be connected to the internet</string>
+    <string name="photo_post">Photo Post</string>
+    <string name="ok">OK</string>
+    <string name="error">Unable to post to Facebook</string>
+
+    <string name="title_activity_facebook_share">Facebook</string>
+    <string name="facebook_default_text">Please enter your text here</string>
+    <string name="title_post_text">Write Post</string>
+    <string name="post_button_text">Post</string>
+    <string name="title_facebook_login">Facebook Login</string>
 
 </resources>

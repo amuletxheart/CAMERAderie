@@ -16,6 +16,7 @@
 package com.amuletxheart.cameraderie.gallery.fragment;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -36,6 +37,7 @@ import android.widget.Toast;
 
 import com.amuletxheart.cameraderie.EditPhotoActivity;
 import com.amuletxheart.cameraderie.R;
+import com.amuletxheart.cameraderie.ShareDialog;
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
 import com.amuletxheart.cameraderie.gallery.activity.TabbedImageActivity;
@@ -51,11 +53,10 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import io.fabric.sdk.android.Fabric;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -102,7 +103,6 @@ public class ImagePagerFragment extends BaseFragment {
 
                         MemoryCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getMemoryCache());
                         DiskCacheUtils.removeFromCache(imageURIString, ImageLoader.getInstance().getDiskCache());
-;
                         int success = getActivity().getContentResolver().delete(imageWithThumbnail.getImageUri(), null, null);
 
                         imageContainer.getImagesWithThumbnails().remove(imageIndex);
@@ -166,31 +166,13 @@ public class ImagePagerFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Click on share button.");
-
-                int imageIndex = imagePager.getCurrentItem();
-
-                String imageURIString = imageUrls[imageIndex];
-
-                Uri imageUri = Uri.parse(imageURIString);
-                Log.i(TAG, "ImageContainer URI: " + imageUri.toString());
-
-                String type = "image/*";
-                String captionText = "#Selfie-at-NYPSIT";
-
-                // Create the new Intent using the 'Send' action.
-                Intent share = new Intent(Intent.ACTION_SEND);
-
-                // Set the MIME type
-                share.setType(type);
-
-                // Add the URI and the caption to the Intent.
-                share.putExtra(Intent.EXTRA_STREAM, imageUri);
-                share.putExtra(Intent.EXTRA_TEXT, captionText);
-
-                // Broadcast the Intent.
-                startActivity(Intent.createChooser(share, "Share to"));
+                ImageWithThumbnail imageWithThumbnail = imageContainer
+                        .getImagesWithThumbnails()
+                        .get(imagePager.getCurrentItem());
+                final Dialog dialog = new ShareDialog(getActivity(), imageWithThumbnail);
             }
         });
+
     }
 
     public void clickShowControls(PhotoView photoView){
@@ -215,6 +197,12 @@ public class ImagePagerFragment extends BaseFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+        final String TWITTER_KEY = "DYvYvBnnqFTWjpbQ7Q16TNRPN";
+        final String TWITTER_SECRET = "DJ95kXnrnHYW71h6ypq1n1lemkmN92k4bYcbGh67WlsudzIddq";
+
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
+        Fabric.with(getActivity(), new Twitter(authConfig));
 
 		options = new DisplayImageOptions.Builder()
 				.showImageForEmptyUri(R.drawable.ic_empty)
