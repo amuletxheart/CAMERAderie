@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
 }
 
 dependencies {
@@ -36,4 +40,6 @@ dependencies {
         transitive = true;
     }
     compile 'com.facebook.android:facebook-android-sdk:3.22.0'
+    compile 'com.cloudinary:cloudinary-http42:1.1.2'
+    compile 'org.apache.httpcomponents:httpclient:4.4'
 }
