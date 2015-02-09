@@ -19,7 +19,7 @@
             android:layout_width="150dp"
             android:layout_height="50dp"
             android:id="@+id/imageNYP"
-            android:src="@drawable/nyp_logo"
+            android:src="@drawable/nyp_logo_horizontal"
             android:layout_alignParentTop="false"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true" />

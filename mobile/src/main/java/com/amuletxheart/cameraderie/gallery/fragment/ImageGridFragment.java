@@ -169,15 +169,7 @@ public class ImageGridFragment extends AbsListViewBaseFragment {
 						public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
 							holder.progressBar.setVisibility(View.GONE);
 
-                            Matrix matrix = new Matrix();
-                            matrix.postRotate(orientations.get(position));
-                            Bitmap rotatedBitmap = Bitmap.createBitmap(loadedImage,
-                                    0,
-                                    0,
-                                    loadedImage.getWidth(),
-                                    loadedImage.getHeight(),
-                                    matrix,
-                                    true);
+                            Bitmap rotatedBitmap = ImageUtil.rotateImage(loadedImage, orientations.get(position));
 
                             holder.imageView.setImageBitmap(rotatedBitmap);
 						}

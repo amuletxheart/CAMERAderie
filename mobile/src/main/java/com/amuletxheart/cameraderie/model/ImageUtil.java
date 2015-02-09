@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -250,6 +251,13 @@ public class ImageUtil {
         return files;
     }
 
+    public static Integer getOrientation(Context context, Uri imageUri){
+        List<Uri> imageUris = new ArrayList<Uri>();
+        imageUris.add(imageUri);
+
+        return getOrientations(context, imageUris).get(0);
+    }
+
     public static List<Integer> getOrientations(Context context, List<Uri> imageUris){
         List<Integer> orientations = new ArrayList<Integer>();
 
@@ -292,6 +300,21 @@ public class ImageUtil {
         Collections.reverse(orientations);
 
         return orientations;
+    }
+
+    public static Bitmap rotateImage(Bitmap originalImage, Integer orientation){
+        Matrix matrix = new Matrix();
+        matrix.postRotate(orientation);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(
+                originalImage,
+                0,
+                0,
+                originalImage.getWidth(),
+                originalImage.getHeight(),
+                matrix,
+                true);
+
+        return rotatedBitmap;
     }
 
     public static String[] uriListToStringArray(List<Uri> uriList){

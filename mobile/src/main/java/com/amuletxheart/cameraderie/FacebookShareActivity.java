@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amuletxheart.cameraderie.model.ImageUtil;
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
 import com.facebook.Request;
@@ -30,11 +32,17 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphObject;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import junit.framework.Assert;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -60,7 +68,7 @@ public class FacebookShareActivity extends Activity {
         mPendingAction = false;
 
         // Used to print the hash key
-        //getHashKey();
+        getHashKey();
 
         // Get the intent that started this activity
         Intent intent = getIntent();
@@ -76,7 +84,14 @@ public class FacebookShareActivity extends Activity {
             mPostText = mExtras.getString(Intent.EXTRA_TEXT);
             mPostTextView.setText(mPostText);
             mImageView = (ImageView)findViewById(R.id.imagePreview_container);
-            mImageView.setImageURI((Uri) mExtras.get(Intent.EXTRA_STREAM));
+
+            Uri imageUri = (Uri) mExtras.get(Intent.EXTRA_STREAM);
+
+            DisplayImageOptions options = new DisplayImageOptions.Builder()
+                    .considerExifParams(true)
+                    .build();
+            ImageLoader imageLoader = ImageLoader.getInstance();
+            imageLoader.displayImage(imageUri.toString(), mImageView, options);
         }
     }
 
@@ -176,10 +191,8 @@ public class FacebookShareActivity extends Activity {
 
             // Add the image
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] byteArrayData = stream.toByteArray();
+                File imageFile = ImageUtil.getFile(this, uri);
+                byte[] byteArrayData = FileUtils.readFileToByteArray(imageFile);
                 param.putByteArray("picture", byteArrayData);
             } catch (IOException ioe) {
                 // The image that was send through is now not there?
