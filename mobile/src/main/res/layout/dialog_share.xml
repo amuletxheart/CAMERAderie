@@ -18,7 +18,7 @@
             android:layout_height="60dp"
             android:paddingLeft="10dp"
             android:scaleType="centerInside"
-            android:src="@drawable/facebook" />
+            android:src="@drawable/icon_facebook_activity" />
 
         <TextView
             android:id="@+id/text"

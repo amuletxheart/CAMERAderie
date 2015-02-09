@@ -23,15 +23,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.amuletxheart.cameraderie.gallery.Constants;
 import com.amuletxheart.cameraderie.gallery.activity.SimpleImageActivity;
 import com.amuletxheart.cameraderie.gallery.fragment.ImagePagerFragment;
+import com.amuletxheart.cameraderie.model.ImageCloud;
 import com.amuletxheart.cameraderie.model.ImageContainer;
 import com.amuletxheart.cameraderie.model.ImageUtil;
 import com.amuletxheart.cameraderie.model.ImageWithThumbnail;
@@ -46,14 +45,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import it.sephiroth.android.library.widget.HListView;
 import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class EditPhotoActivity extends ActionBarActivity {
     private static final String TAG = MainActivity.class.getName();
@@ -73,7 +70,9 @@ public class EditPhotoActivity extends ActionBarActivity {
 
     private android.widget.RelativeLayout.LayoutParams layoutParams;
 
-    private String[] loadImagesFromStorage(){
+    private String[] loadFrames(){
+        //ImageCloud imageCloud = new ImageCloud();
+
         String [] allFrames = null;
         List<String> usingFramesList = new ArrayList<String>();
         String [] usingFrames = null;
@@ -110,15 +109,15 @@ public class EditPhotoActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_photo);
 
-        frameUrls = loadImagesFromStorage();
+        frameUrls = loadFrames();
 
         onWindowFocusChanged(true);
 
         ImageButton imageButtonDiscard = (ImageButton)findViewById(R.id.imageButtonDiscard);
-        setImageButtonEnabled(this, false, imageButtonDiscard, R.drawable.ic_action_cancel);
+        imageButtonDiscard.setVisibility(View.INVISIBLE);
 
         ImageButton imageButtonSave = (ImageButton)findViewById(R.id.imageButtonSave);
-        setImageButtonEnabled(this, false, imageButtonSave, R.drawable.ic_action_save);
+        imageButtonSave.setVisibility(View.INVISIBLE);
 
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.ic_empty)
@@ -183,10 +182,10 @@ public class EditPhotoActivity extends ActionBarActivity {
         frame.setImageResource(android.R.color.transparent);
 
         ImageButton imageButtonDiscard = (ImageButton)findViewById(R.id.imageButtonDiscard);
-        setImageButtonEnabled(this, false, imageButtonDiscard, R.drawable.ic_action_cancel);
+        imageButtonDiscard.setVisibility(View.INVISIBLE);
 
         ImageButton imageButtonSave = (ImageButton)findViewById(R.id.imageButtonSave);
-        setImageButtonEnabled(this, false, imageButtonSave, R.drawable.ic_action_save);
+        imageButtonSave.setVisibility(View.INVISIBLE);
     }
 
     public void clickSave(View v){
@@ -266,10 +265,10 @@ public class EditPhotoActivity extends ActionBarActivity {
                 Log.i(TAG, "Frame clicked: " + frameUrls[position]);
 
                 ImageButton imageButtonDiscard = (ImageButton)findViewById(R.id.imageButtonDiscard);
-                setImageButtonEnabled(editPhotoActivity, true, imageButtonDiscard, R.drawable.ic_action_cancel);
+                imageButtonDiscard.setVisibility(View.VISIBLE);
 
                 ImageButton imageButtonSave = (ImageButton)findViewById(R.id.imageButtonSave);
-                setImageButtonEnabled(editPhotoActivity, true, imageButtonSave, R.drawable.ic_action_save);
+                imageButtonSave.setVisibility(View.VISIBLE);
 
                 ImageLoader imageLoader = ImageLoader.getInstance();
                 imageLoader.displayImage(frameUrls[position], frame, options);

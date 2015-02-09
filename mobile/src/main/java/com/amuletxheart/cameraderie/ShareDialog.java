@@ -72,6 +72,7 @@ public class ShareDialog extends Dialog {
 
     public void clickFacebook(View view){
         shareButtonPressed(view);
+        dismiss();
     }
     public void clickTwitter(View view){
         Fabric.with(mContext, new TweetComposer());
@@ -81,12 +82,14 @@ public class ShareDialog extends Dialog {
         .image(imageWithThumbnail.getImageUri());
 
         builder.show();
+        dismiss();
     }
     public void clickInstagram(View view) {
         String type = "image/*";
         String captionText = "#Selfie@NYPSIT";
 
         createInstagramIntent(type, imageWithThumbnail.getImageUri(), captionText);
+        dismiss();
     }
     private void createInstagramIntent(String type, Uri uri, String caption){
         // Create the new Intent using the 'Send' action.
@@ -105,14 +108,14 @@ public class ShareDialog extends Dialog {
     }
     public void shareButtonPressed(View view) {
         // uri to the image you want to share
-        Uri path = Uri.parse("android.resource://com.amuletxheart.cameraderie/" + R.drawable.ic_launcher);
+        Uri path = imageWithThumbnail.getImageUri();
 
         // create email intent first to remove bluetooth + others options
         Intent emailIntent = new Intent();
         emailIntent.setAction(Intent.ACTION_SEND);
         // Native email client doesn't currently support HTML, but it doesn't hurt to try in case they fix it
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "Selfie@NYPSIT");
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Selfie@NYPSIT");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "#Selfie@NYPSIT");
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "#Selfie@NYPSIT");
         emailIntent.putExtra(Intent.EXTRA_STREAM, path);
         emailIntent.setType("image/jpeg");
         // Create the chooser based on the email intent

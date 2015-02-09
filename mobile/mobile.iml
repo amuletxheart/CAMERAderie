@@ -85,6 +85,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="gson-2.2.4" level="project" />
     <orderEntry type="library" exported="" name="commons-io-2.4" level="project" />
+    <orderEntry type="library" exported="" name="httpmime-4.2.1" level="project" />
     <orderEntry type="library" exported="" name="twitter-1.1.1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-21.0.2" level="project" />
     <orderEntry type="library" exported="" name="facebook-android-sdk-3.22.0" level="project" />
@@ -92,12 +93,16 @@
     <orderEntry type="library" exported="" name="retrofit-1.6.1" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.3.2" level="project" />
     <orderEntry type="library" exported="" name="tweet-ui-1.0.3" level="project" />
+    <orderEntry type="library" exported="" name="httpcore-4.4" level="project" />
     <orderEntry type="library" exported="" name="play-services-6.1.71" level="project" />
     <orderEntry type="library" exported="" name="hlistview-1.2.2" level="project" />
     <orderEntry type="library" exported="" name="tweet-composer-0.7.2" level="project" />
     <orderEntry type="library" exported="" name="fabric-1.1.0" level="project" />
     <orderEntry type="library" exported="" name="twitter-core-1.1.1" level="project" />
+    <orderEntry type="library" exported="" name="commons-lang3-3.1" level="project" />
+    <orderEntry type="library" exported="" name="cloudinary-core-1.1.2" level="project" />
     <orderEntry type="library" exported="" name="library-1.2.3" level="project" />
+    <orderEntry type="library" exported="" name="cloudinary-http42-1.1.2" level="project" />
     <orderEntry type="library" exported="" name="digits-1.1.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-21.0.2" level="project" />
     <orderEntry type="library" exported="" name="bolts-android-1.1.4" level="project" />
