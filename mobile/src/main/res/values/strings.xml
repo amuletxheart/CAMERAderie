@@ -47,8 +47,8 @@
     <!--LIVE APP ID-->
     <string name="app_id">1406218673005163</string>
     <string name="facebook_post_content_desc">Image to share</string>
-    <string name="app_package_name">com.example.hp.facebookshare</string>
-    <string name="success">Success</string>
+    <string name="app_package_name">com.amuletxheart.cameraderie</string>
+    <string name="success">Selfie@NYP SIT</string>
     <string name="successfully_posted_post">Successfully posted to Facebook</string>
     <string name="unable_to_post">You may not be connected to the internet</string>
     <string name="photo_post">Photo Post</string>

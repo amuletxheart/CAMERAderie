@@ -1,5 +1,6 @@
 package com.amuletxheart.cameraderie;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -8,6 +9,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.widget.ProgressBar;
 
 import com.amuletxheart.cameraderie.camera.CameraActivity;
 import com.amuletxheart.cameraderie.gallery.Constants;
@@ -22,6 +25,7 @@ import java.io.File;
 
 public class MainActivity extends ActionBarActivity {
     private static final String TAG = MainActivity.class.getName();
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +39,14 @@ public class MainActivity extends ActionBarActivity {
             if (! imageDir.mkdirs()){
                 Log.e(TAG, "Failed to create directory");
             }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(progressDialog != null){
+            progressDialog.dismiss();
         }
     }
 
@@ -70,9 +82,12 @@ public class MainActivity extends ActionBarActivity {
     public void clickGallery(View view){
         Log.i(TAG, "Clicked on gallery button.");
 
-        /*Intent intent = new Intent(this, SimpleImageActivity.class);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGridFragment.INDEX);
-        startActivity(intent);*/
+        progressDialog = new ProgressDialog(this);
+        ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleLarge);
+        progressBar.setIndeterminate(true);
+
+        progressDialog.show();
+        progressDialog.setContentView(progressBar);
 
         Intent intent = new Intent(this, TabbedImageActivity.class);
         startActivity(intent);
