@@ -46,42 +46,35 @@
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="10dp">
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="3"
-                android:gravity="top"
-                android:layout_gravity="left">
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/scrollView"
+                android:layout_weight="3">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imagePreview_container"
-                    android:src="@drawable/icon_facebook_activity"
-                    android:layout_gravity="center_horizontal|top"
-                    android:scaleType="fitStart"
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/postText"
+                    android:background="@android:color/white"
+                    android:text="@string/facebook_default_text"
+                    android:inputType="textMultiLine"
                     android:padding="10dp"
-                    android:contentDescription="@string/facebook_post_content_desc" />
-            </LinearLayout>
+                    android:layout_weight="3" />
+            </ScrollView>
 
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/postText"
-                android:background="@android:color/white"
-                android:text="@string/facebook_default_text"
-                android:layout_weight="1"
-                android:layout_gravity="top"
-                android:gravity="left|top"
-                android:inputType="textMultiLine"
-                android:padding="10dp" />
-
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/imagePreview_container"
+                android:src="@drawable/icon_facebook_activity"
+                android:padding="10dp"
+                android:contentDescription="@string/facebook_post_content_desc"
+                android:layout_weight="1" />
         </LinearLayout>
 
     </LinearLayout>

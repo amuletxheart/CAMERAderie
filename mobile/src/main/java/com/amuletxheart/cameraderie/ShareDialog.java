@@ -71,7 +71,7 @@ public class ShareDialog extends Dialog {
     }
 
     public void clickFacebook(View view){
-        shareButtonPressed(view);
+        shareToFacebook(view);
         dismiss();
     }
     public void clickTwitter(View view){
@@ -106,7 +106,7 @@ public class ShareDialog extends Dialog {
         // Broadcast the Intent.
         mContext.startActivity(share);
     }
-    public void shareButtonPressed(View view) {
+    public void shareToFacebook(View view) {
         // uri to the image you want to share
         Uri path = imageWithThumbnail.getImageUri();
 
